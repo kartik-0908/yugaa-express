@@ -1,7 +1,8 @@
-import express, { Request, Router } from 'express';
+import { Router } from 'express';
 import crypto from 'crypto';
-import { client } from '../../lib/prisma';
-import redis from '../../lib/redis';
+import { client } from '../lib/prisma';
+const getRawBody = require('raw-body')
+import redis from '../lib/redis';
 require('dotenv').config();
 const router = Router();
 const secretKey = process.env.SHOPIFY_SECRET_KEY || "";
@@ -10,9 +11,9 @@ const verifyWebhook = (hmac: string, body: string) => {
     return generatedHmac === hmac;
 };
 
-const verifyShopifyWebhook = (req: any, res: any, next: any) => {
+const verifyShopifyWebhook = async (req: any, res: any, next: any) => {
     const hmac = req.get('x-shopify-hmac-sha256') || "";
-    const body = JSON.stringify(req.body);
+    const body = await getRawBody(req);
 
     if (verifyWebhook(hmac, body)) {
         console.log("from shopify")

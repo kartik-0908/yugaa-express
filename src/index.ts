@@ -1,14 +1,12 @@
 // src/app.ts
 import express from 'express';
 const router  = require("./routes/v1/reply")
+const webhookRouter  = require("./routes/webhooks")
 var cors = require('cors')
 const app = express();
 
 app.use(cors())
-app.use(express.json())
-
-
-
+app .use('/webhooks', webhookRouter)
 app.use('/v1', router);
 
 
