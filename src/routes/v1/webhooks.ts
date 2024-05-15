@@ -26,7 +26,7 @@ const verifyShopifyWebhook = (req: any, res: any, next: any) => {
     }
 };
 
-// router.use(verifyShopifyWebhook);
+router.use(verifyShopifyWebhook);
 router.get('/',(req,res)=>{
     res.json({
         "message":"inside webhook"
