@@ -79,7 +79,7 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         </KnowledgeBase>
     
         `;
-        const prompt1 = `Given the above conversation, generate a search query to look up in order to get information relevant to the conversation.Include all the keywords for the search purpose. Give more weightage to last user messages Only respond with the query, nothing else.`;
+        const prompt1 = `Given the above conversation, generate a search query to look up in order to get information relevant to the last questions asked by user , if last query is related to previous queries, then include keywords from previous queries also. Only respond with the query, nothing else.`;
         const queryGenerator = ChatPromptTemplate.fromMessages([
             ["system", prompt1],
             new MessagesPlaceholder("messages"),
