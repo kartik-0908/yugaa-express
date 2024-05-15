@@ -3,9 +3,11 @@ import { Router } from 'express';
 import { generateBotResponse } from '../../common/reply';
 const Redis = require("ioredis");
 require('dotenv').config();
+const webhookRouter = require("./webhooks")
 const redis = new Redis(process.env.REDIS_URL);
 const router = Router();
 
+router .use('/webhooks', webhookRouter)
 // Example route
 router.get('/', (req, res) => {
     res.send('Welcome to API version 1');
@@ -48,4 +50,4 @@ router.post('/reply', async (req, res) => {
     }
 });
 
-export default router;
+module.exports = router

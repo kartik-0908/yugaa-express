@@ -1,6 +1,6 @@
 // src/app.ts
 import express from 'express';
-import router from './routes/v1/reply';
+const router  = require("./routes/v1/reply")
 var cors = require('cors')
 const app = express();
 
