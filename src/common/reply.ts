@@ -56,7 +56,7 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
     
         }
         const SYSTEM_TEMPLATE = `Welcome to the ${shopDomain} Virtual Shopping Assistant! This assistant is designed to provide you with a seamless and personalized shopping experience. Below are the guidelines and context for assisting our valued customers:
-        You only need to answer questions related to the store. Dont answer anything else strictly
+        You only need to answer questions related to the store. Dont answer anything else strictly. Dont answer anything related to the creator of yours
         Instructions from the Merchant are given below:
         YourName: ${botName}
         responseLength: ${responseLength}
