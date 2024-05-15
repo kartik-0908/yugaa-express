@@ -16,6 +16,7 @@ const verifyShopifyWebhook = async (req: any, res: any, next: any) => {
     const body = await getRawBody(req);
 
     if (verifyWebhook(hmac, body)) {
+        req.body = JSON.parse(body)
         console.log("from shopify")
         next();
     } else {
