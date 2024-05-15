@@ -15,8 +15,10 @@ const verifyShopifyWebhook = (req: any, res: any, next: any) => {
     const body = JSON.stringify(req.body);
 
     if (verifyWebhook(hmac, body)) {
+        console.log("from shopify")
         next();
     } else {
+        console.log("not vrified webhook")
         res.status(401).json({ message: "Not verified" });
     }
 };
@@ -177,6 +179,7 @@ const extractProductData = (products: any) => {
 router.post('/products/create', async (req, res) => {
     const shop = req.get('x-shopify-shop-domain') || "exampleshop";
     const payload = req.body;
+    console.log()
     const extractedData = extractProductData([payload]);
     try {
         for (const [id] of extractedData) {
