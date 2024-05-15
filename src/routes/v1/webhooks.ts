@@ -3,13 +3,8 @@ import crypto from 'crypto';
 import { client } from '../../lib/prisma';
 import redis from '../../lib/redis';
 require('dotenv').config();
-
-
-
 const router = Router();
-
 const secretKey = process.env.SHOPIFY_SECRET_KEY || "";
-
 const verifyWebhook = (hmac: string, body: string) => {
     const generatedHmac = crypto.createHmac('sha256', secretKey).update(body, 'utf8').digest('base64');
     return generatedHmac === hmac;

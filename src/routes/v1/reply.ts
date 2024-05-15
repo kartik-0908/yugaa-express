@@ -21,7 +21,7 @@ router.get('/example', (req, res) => {
 
 router.post('/reply', async (req, res) => {
     const { messages, domain, conversationId, timestamp, userDetails } = req.body;
-    // console.log(req.body)
+    console.log(req.body)
     try {
         await redis.lpush('create-conv', JSON.stringify({
             shop: domain,
