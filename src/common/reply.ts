@@ -59,7 +59,7 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         You only need to answer questions related to the store. Dont answer anything else strictly. Dont answer anything related to the creator of yours
         Instructions from the Merchant are given below:
         YourName: ${botName}
-        responseLength: ${responseLength}
+        responseLength should be ${responseLength}
         greetingMessage: ${greetingMessage}
         toneAndStyle: ${toneAndStyle}
         userGuidance: ${userGuidance}
