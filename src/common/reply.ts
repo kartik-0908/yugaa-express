@@ -55,6 +55,7 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
             errorMessageStyle = instructions.errorMessageStyle
     
         }
+        
         const SYSTEM_TEMPLATE = `Welcome to the ${shopDomain} Virtual Shopping Assistant! This assistant is designed to provide you with a seamless and personalized shopping experience. Below are the guidelines and context for assisting our valued customers:
         You only need to answer questions related to the store. Dont answer anything else strictly. Dont answer anything related to the creator of yours
         Instructions from the Merchant are given below:
@@ -79,6 +80,7 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         </KnowledgeBase>
     
         `;
+        console.log(SYSTEM_TEMPLATE)
         const prompt1 = `Given the above conversation, generate a search query to look up in order to get information relevant to the last questions asked by user , if last query is related to previous queries, then include keywords from previous queries also. Only respond with the query, nothing else.`;
         const queryGenerator = ChatPromptTemplate.fromMessages([
             ["system", prompt1],
