@@ -13,7 +13,7 @@ import { getCustomizationData, getEmail } from "./user";
 const pinecone = new Pinecone();
 const chat = new ChatAnthropic({
     temperature: 0.9,
-    model: "claude-3-sonnet-20240229",
+    model: "claude-3-haiku-20240307",
     maxTokens: 1024,
 });
 export async function generateBotResponse(shopDomain: string, messages: string[][]) {
