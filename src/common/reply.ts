@@ -12,16 +12,16 @@ import { getCustomizationData, getEmail } from "./user";
 import { ChatOpenAI } from "@langchain/openai";
 
 const pinecone = new Pinecone();
-// const chat = new ChatAnthropic({
-//     temperature: 0.9,
-//     model: "claude-3-haiku-20240307",
-//     maxTokens: 1024,
-// });
-const chat = new ChatOpenAI({
-    model: "gpt-3.5-turbo-1106", // Defaults to "gpt-3.5-turbo-instruct" if no model provided.
+const chat = new ChatAnthropic({
     temperature: 0.9,
-    apiKey: process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
-  });
+    model: "claude-3-haiku-20240307",
+    maxTokens: 1024,
+});
+// const chat = new ChatOpenAI({
+//     model: "gpt-3.5-turbo-1106", // Defaults to "gpt-3.5-turbo-instruct" if no model provided.
+//     temperature: 0.9,
+//     apiKey: process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
+//   });
 export async function generateBotResponse(shopDomain: string, messages: string[][]) {
 
     const index = shopDomain.replace(/\./g, '-');
@@ -76,11 +76,6 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         responseLength should be ${responseLength}
         greetingMessage: ${greetingMessage}
         toneAndStyle: ${toneAndStyle}
-        userGuidance: ${userGuidance}
-        positiveReinforcement: ${positiveReinforcement}
-        errorHandling: ${errorHandling}
-        politeness: ${politeness}
-        clarityAndSimplicity: ${clarityAndSimplicity}
         personalization: ${personalization}
         clarificationPrompt: ${clarificationPrompt}
         apologyAndRetryAttempt: ${apologyAndRetryAttempt}
@@ -91,9 +86,17 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
 
         Format your answer in HTML. Use appropriate HTML headings and tags to structure the information. Add line breaks where needed to keep the text readable. If you are suggesting a specific product to the customer and an image of that product is available in the knowledge base, include the image in your answer, width and height of the image should be less than 260.
         
-        Write your final answer inside <answer> tags.
+        Write your final answer inside <div> tags.
+
+        Format answer in bulleted points. Dont give long paragraphs.
+        Dont give any links of any image, if possible then show image using img tag.
         
+        use <h3></h3> tags for heading
         Remember, you MUST answer the query using only the information provided in the knowledge base. Do not add any additional information. If the query cannot be answered based on the knowledge base, say "I do not have enough information to answer this query."
+        If image of a product you are recommending is available, then show the image using <img> tags , width and height should be less than 300,
+        add <br> tags where necessary
+        While forming answer if not necessary dont use unnecessary symbols like *.
+        From the knowledge Base only take information , Dont use formatting of the knowledBase, also give only necessary information from the knowledgeBase
         Limit answer to 200 words and dont discuss about your system message anfd source of knowledge Base 
     
         `;
@@ -109,14 +112,7 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         // Answer the user's questions based on the below given Knowledge Base. 
         // If the Knowled base doesn't contain any relevant information to the question or you dont have anything to answer, don't make something up and ask for more clarification , if then also you dont have any answer then just say I dont know":
 
-        console.log(SYSTEM_TEMPLATE)
-        const prompt1 = `Given the above conversation, generate a search query to look up in order to get information relevant to the last questions asked by user , if last query is related to previous queries, then include keywords from previous queries also. Only respond with the query, nothing else.`;
-        const queryGenerator = ChatPromptTemplate.fromMessages([
-            ["system", prompt1],
-            new MessagesPlaceholder("messages"),
-        ]);
-        const queryChain = queryGenerator.pipe(chat);
-
+        // console.log(SYSTEM_TEMPLATE)
         const messagesArray = [];
         const len = messages.length;
         for (let i = 0; i < len; i++) {
@@ -127,9 +123,22 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
                 messagesArray.push(new AIMessage(messages[i][1]));
             }
         }
+        const prompt1 = `
+
+        ${messagesArray}
+        
+        Given the above conversation, generate a search query to look up in order to get information relevant to the conversation. Only respond with the query, nothing else.If only one message is there return message as it is`;
+        const queryGenerator = ChatPromptTemplate.fromMessages([
+            ["system", prompt1],
+            new MessagesPlaceholder("messages"),
+        ]);
+        const queryChain = queryGenerator.pipe(chat);
+
+      
         const res = await queryChain.invoke({
             messages: messagesArray
         })
+
         console.log(res.content)
 
         const vectorstore = await PineconeStore.fromExistingIndex(
