@@ -173,7 +173,6 @@ export async function reply(messages: string[][], domain: string, conversationId
             sender: 'user',
             text: messages[messages.length - 1][1]
         }));
-        io.in(conversationId).emit('status', { status: 'understanding' });
         const botResponse = await generateBotResponse(domain, messages, io, conversationId);
         await redis.lpush('create-mssg', JSON.stringify({
             convId: conversationId,

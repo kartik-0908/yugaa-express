@@ -58,6 +58,7 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', async (data) => {
         const { roomName, messages, shopifyDomain, conversationId, userInfo, timestamp } = data;
         // Process the message and get AI reply
+        io.in(conversationId).emit('status', { status: 'understanding' });
         const replyMessage = await reply(messages, shopifyDomain, conversationId,timestamp, userInfo, io); // Replace with your AI processing logic
         console.log(roomName)
         console.log(replyMessage)
