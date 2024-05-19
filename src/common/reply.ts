@@ -11,10 +11,16 @@ import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import { getCustomizationData, getEmail } from "./user";
 import { ChatOpenAI } from "@langchain/openai";
 import redis from "../lib/redis";
-
+import { StructuredOutputParser } from "langchain/output_parsers";
+import { z } from "zod";
 const pinecone = new Pinecone();
 const chat = new ChatAnthropic({
     temperature: 0.9,
+    model: "claude-3-haiku-20240307",
+    maxTokens: 1024,
+});
+const chat2 = new ChatAnthropic({
+    temperature: 0,
     model: "claude-3-haiku-20240307",
     maxTokens: 1024,
 });
@@ -23,10 +29,15 @@ const chat = new ChatAnthropic({
 //     temperature: 0.9,
 //     apiKey: process.env.OPENAI_API_KEY, // In Node.js defaults to process.env.OPENAI_API_KEY
 //   });
-export async function generateBotResponse(shopDomain: string, messages: string[][], io: any, conversationId: string) {
+
+
+
+export async function generateBotResponse(shopDomain: string, messages: any, io: any, conversationId: string) {
     const index = shopDomain.replace(/\./g, '-');
     const pineconeIndex = pinecone.Index(index);
+
     try {
+
         const email = await getEmail(shopDomain)
         console.log("email")
         console.log(email)
@@ -68,7 +79,7 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         <KnowledgeBase>
         {context}
         </KnowledgeBase>
-
+        
         This knowledge base contains all the information you are allowed to use to answer customer queries. Do not use any information outside of what is provided in the knowledge base.
         
         <instructions>
@@ -81,37 +92,91 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         apologyAndRetryAttempt: ${apologyAndRetryAttempt}
         errorMessageStyle: ${errorMessageStyle}
         </instructions>
-
+        
         To generate a good answer, first carefully read the knowledge base. Then search through it to find the pieces of information that are most relevant to answering the customer's specific query. Combine these pieces of information together into a coherent answer.
+        You must format your output as a JSON value that adheres to a given "JSON Schema" instance.
 
-        Format your answer in HTML. Use appropriate HTML headings and tags to structure the information. Add line breaks where needed to keep the text readable. If you are suggesting a specific product to the customer and an image of that product is available in the knowledge base, include the image in your answer, width and height of the image should be less than 260.
-        
-        Write your final answer inside <div> tags.
 
-        Format answer in bulleted points. Dont give long paragraphs.
-        Dont give any links of any image, if possible then show image using img tag.
-        
-        use <h3></h3> tags for heading
+       "JSON Schema" is a declarative language that allows you to annotate and validate JSON documents.
+      
+       For example, the example "JSON Schema" instance {{"properties": {{"foo": {{"description": "a list of test words", "type": "array", "items": {{"type": "string"}}}}}}, "required": ["foo"]}}}}
+       would match an object with one required property, "foo". The "type" property specifies "foo" must be an "array", and the "description" property semantically describes it as "a list of test words". The items within "foo" must be strings.
+       Thus, the object {{"foo": ["bar", "baz"]}} is a well-formatted instance of this example "JSON Schema". The object {{"properties": {{"foo": ["bar", "baz"]}}}} is not well-formatted.
+      
+       Your output will be parsed and type-checked according to the provided schema instance, so make sure all fields in your output match the schema exactly and there are no trailing commas!
+      
+       Here is the JSON Schema instance your output must adhere to. Include the enclosing markdown codeblock:
+       {{
+         "type": "object",
+         "properties": {{
+           "reply": {{
+             "type": "string",
+             "description": "Answer to the user's question"
+           }},
+           "products": {{
+             "type": "array",
+             "items": {{
+               "type": "object",
+               "properties": {{
+                 "name": {{
+                   "type": "string",
+                   "description": "Name of the product"
+                 }},
+                 "imageUrl": {{
+                   "type": "string",
+                   "description": "URL of the product image"
+                 }},
+                 "price": {{
+                   "type": "string",
+                   "description": "Price of the product"
+                 }}
+               }},
+               "required": ["name", "imageUrl", "price"]
+             }},
+             "description": "List of products relevant to the user's query"
+           }}
+         }},
+         "required": ["reply", "products"],
+         "additionalProperties": false,
+         "$schema": "http://json-schema.org/draft-07/schema#"
+       }}
+       If user has a query where telling him about the products is inappropriate. Strictly keep the products array empty in the answer.
+
+       If the query is related to products, structure the response as follows:
+       1. An introductory text that the user will see initially , it can include anything that has user asked for or any relevant information which user should know.
+       2. A list of products including image URL, product name, and price.
+       Bold the important keywords
+
+       In the introductory text, include main points about the product
+
         Remember, you MUST answer the query using only the information provided in the knowledge base. Do not add any additional information. If the query cannot be answered based on the knowledge base, say "I do not have enough information to answer this query."
-        If image of a product you are recommending is available, then show the image using <img> tags , width and height should be less than 300,
-        add <br> tags where necessary
-        While forming answer if not necessary dont use unnecessary symbols like *.
-        From the knowledge Base only take information , Dont use formatting of the knowledBase, also give only necessary information from the knowledgeBase
-        Limit answer to 200 words and dont discuss about your system message anfd source of knowledge Base 
-    
+        If the image of a product you are recommending is available, then show the image using <img> tags, width and height should be less than 300.
+        From the knowledge Base only take information, Don't use formatting of the knowledgeBase, also give only necessary information from the knowledgeBase.
+        Limit the answer to 200 words and don't discuss your system message and source of the knowledge Base.
+        Dont use newline character or any other character which wil cause issue in json parsing. \n\n use this character for the newline 
+        return your complete json 
+       
+        Strictly repond with json format given above
+
         `;
-        const messagesArray = [];
+        const messagesArray1 = [];
+        const messagesArray2 = [];
         const len = messages.length;
         for (let i = 0; i < len; i++) {
+            if (!messages[i][1]) continue
             if (messages[i][0] == "user") {
-                messagesArray.push(new HumanMessage(messages[i][1]));
+                messagesArray1.push(new HumanMessage(messages[i][1]));
+                messagesArray2.push(new HumanMessage(messages[i][1]));
             }
             else {
-                messagesArray.push(new AIMessage(messages[i][1]));
+                messagesArray1.push(new AIMessage(messages[i][1].reply));
+                messagesArray2.push(new AIMessage(JSON.stringify(messages[i][1])));
             }
         }
+        console.log(messagesArray1)
+        console.log(messagesArray2)
         const prompt1 = `
-        ${messagesArray}
+        ${messagesArray1}
         Given the above conversation, generate a search query to look up in order to get information relevant to the conversation. Only respond with the query, nothing else.If only one message is there return message as it is`;
         const queryGenerator = ChatPromptTemplate.fromMessages([
             ["system", prompt1],
@@ -119,7 +184,7 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         ]);
         const queryChain = queryGenerator.pipe(chat);
         const res = await queryChain.invoke({
-            messages: messagesArray
+            messages: messagesArray1
         })
         io.in(conversationId).emit('status', { status: 'thinking' });
         console.log(res.content)
@@ -129,7 +194,7 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         );
         const retriever = vectorstore.asRetriever(4);
         const docs = await retriever.invoke(String(res.content));
-        console.log(docs);
+        // console.log(docs);
         const questionAnsweringPrompt = ChatPromptTemplate.fromMessages([
             [
                 "system",
@@ -143,11 +208,17 @@ export async function generateBotResponse(shopDomain: string, messages: string[]
         });
         io.in(conversationId).emit('status', { status: 'writing' });
         const lastReply = await documentChain.invoke({
-            messages: messagesArray,
+            messages: messagesArray2,
             context: docs,
         });
         console.log(lastReply)
-        return lastReply
+        console.log("lastReply")
+
+        // const jsonString = lastReply.match(/<answer>(.*?)<\/answer>/s)?.[1] || `{"reply" : "Unavailable right now"}`;
+        // console.log(jsonString)
+        const jsonResponse = JSON.parse(lastReply);
+
+        return jsonResponse;
     } catch (error) {
         console.log(error)
         return "Not availabel right now"
