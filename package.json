@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@langchain/anthropic": "^0.1.17",
+    "@langchain/google-vertexai": "^0.0.16",
     "@langchain/openai": "^0.0.28",
     "@langchain/pinecone": "^0.0.4",
     "@pinecone-database/pinecone": "^2.2.1",

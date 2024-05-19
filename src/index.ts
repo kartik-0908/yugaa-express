@@ -4,20 +4,20 @@ import http from 'http'; // Import the HTTP module
 import { Server as SocketIOServer } from 'socket.io'; // Import Socket.IO
 import { reply } from './common/reply';
 
-const router  = require("./routes/v1/reply")
-const webhookRouter  = require("./routes/webhooks")
+const router = require("./routes/v1/reply")
+const webhookRouter = require("./routes/webhooks")
 var cors = require('cors')
 const app = express();
 
 app.use(cors())
-app .use('/webhooks', webhookRouter)
+app.use('/webhooks', webhookRouter)
 app.use('/v1', router);
 
 
-app.get('/',(req,res)=>{
+app.get('/', async (req, res) => {
     console.log("inside api root")
     res.json({
-        "message": "status ok!!"
+        "message": "status ok"
     })
 })
 
@@ -59,7 +59,7 @@ io.on('connection', (socket) => {
         const { roomName, messages, shopifyDomain, conversationId, userInfo, timestamp } = data;
         // Process the message and get AI reply
         io.in(conversationId).emit('status', { status: 'understanding' });
-        const replyMessage = await reply(messages, shopifyDomain, conversationId,timestamp, userInfo, io); // Replace with your AI processing logic
+        const replyMessage = await reply(messages, shopifyDomain, conversationId, timestamp, userInfo, io); // Replace with your AI processing logic
         io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
     });
 
