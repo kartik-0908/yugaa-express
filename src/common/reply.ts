@@ -250,7 +250,7 @@ export async function reply(messages: string[][], domain: string, conversationId
             convId: conversationId,
             timestamp: new Date(),
             sender: 'bot',
-            text: botResponse.reply
+            text: JSON.stringify(botResponse)
         }));
         return botResponse
     } catch (error) {
