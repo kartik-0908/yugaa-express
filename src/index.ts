@@ -3,6 +3,8 @@ import express from 'express';
 import http from 'http'; // Import the HTTP module
 import { Server as SocketIOServer } from 'socket.io'; // Import Socket.IO
 import { reply } from './common/reply';
+import { getPreviousMessages } from './common/user';
+import { timeStamp } from 'console';
 
 const router = require("./routes/v1/reply")
 const webhookRouter = require("./routes/webhooks")
@@ -56,21 +58,32 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sendMessage', async (data) => {
-        const { roomName, messages, shopifyDomain, conversationId, userInfo, timestamp } = data;
+        const { ticketId, roomName, messages, shopifyDomain, conversationId, userInfo, timestamp } = data;
         // Process the message and get AI reply
         io.in(conversationId).emit('status', { status: 'understanding' });
-        const replyMessage = await reply(messages, shopifyDomain, conversationId, timestamp, userInfo, io); // Replace with your AI processing logic
+        const replyMessage = await reply(ticketId,messages, shopifyDomain, conversationId, timestamp, userInfo, io); // Replace with your AI processing logic
         io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
     });
 
+    socket.on('getPreviousMessages', async (data) => {
+        const { ticketId } = data;
+        console.log(`Fetching previous messages for ticket ID: ${ticketId}`);
+
+        const previousMessages = await getPreviousMessages(ticketId);
+
+        const formattedMessages = previousMessages.map(message => ({
+            sender: message.senderType === 'user' ? 'user' : 'bot',
+            message: message.text,
+            timeStamp: message.timestamp
+        }));
+        socket.emit('previousMessages', { prevMessages: formattedMessages });
+    });
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
-
-    // Example of a custom event
     socket.on('message', (msg) => {
         console.log('message: ' + msg);
-        io.emit('message', msg); // Broadcast the message to all connected clients
+        io.emit('message', msg); 
     });
 });
 
