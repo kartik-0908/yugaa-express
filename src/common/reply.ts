@@ -208,12 +208,14 @@ async function getMainPrompt(shopDomain: string) {
         From the knowledge Base only take information, Don't use formatting of the knowledgeBase, also give only necessary information from the knowledgeBase.
         
         Response length guidelines:
-        - If the response length is 'short', finish under 30 words.
-        - If the response length is 'medium', finish under 50 words but more than 30 words.
-        - If the response length is 'long', finish with more than 50 words but under 70 words.
+        - If the response length is 'short', you must answer  under 30 words.
+        - If the response length is 'medium', you must answer under 50 words but more than 30 words.
+        - If the response length is 'long', you must answer with more than 50 words but under 70 words.
 
 
         Dont provide exact number of inventory quantity, just say "this item is in stock" and if inventory quantity is 0 just say "out of stock for now"
+        
+        Strictly dont discuss about the source of knowledge or about the length of knowledge
         `;
         return prompt2
     } catch (error) {
