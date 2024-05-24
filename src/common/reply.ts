@@ -215,7 +215,7 @@ async function getMainPrompt(shopDomain: string) {
 
         Dont provide exact number of inventory quantity, just say "this item is in stock" and if inventory quantity is 0 just say "out of stock for now"
         
-        Strictly dont discuss about the source of knowledge or about the length of knowledge
+        Strictly dont discuss about the source of knowledge or about the length of knowledge base
         `;
         return prompt2
     } catch (error) {
