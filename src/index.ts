@@ -4,8 +4,6 @@ import http from 'http'; // Import the HTTP module
 import { Server as SocketIOServer } from 'socket.io'; // Import Socket.IO
 import { reply } from './common/reply';
 import { getPreviousMessages } from './common/user';
-import { timeStamp } from 'console';
-
 const router = require("./routes/v1/reply")
 const webhookRouter = require("./routes/webhooks")
 var cors = require('cors')
