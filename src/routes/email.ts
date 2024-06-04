@@ -6,7 +6,7 @@ const router = Router();
 const { GoogleAuth } = require('google-auth-library');
 const { DNS } = require('@google-cloud/dns');
 
-// router.use(express.json());
+router.use(express.bodyParser());
 
 const projectId = process.env.PROJECT_ID;
 const clientEmail = process.env.CLIENT_EMAIL;
@@ -120,7 +120,7 @@ router.post('/', (req, res) => {
     // quickstart();
 
     console.log('Request Body:', req.body);
-    console.log('Request Body:', req);
+    // console.log('Request Body:', req);
 
     res.status(200).json({
         message: "inside email",
