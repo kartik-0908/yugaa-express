@@ -120,6 +120,7 @@ router.post('/', (req, res) => {
     // quickstart();
 
     console.log('Request Body:', req.body);
+    console.log('Request Body:', req);
 
     res.status(200).json({
         message: "inside email",
