@@ -6,7 +6,7 @@ const router = Router();
 const { GoogleAuth } = require('google-auth-library');
 const { DNS } = require('@google-cloud/dns');
 
-router.use(express.json());
+// router.use(express.json());
 
 const projectId = process.env.PROJECT_ID;
 const clientEmail = process.env.CLIENT_EMAIL;
