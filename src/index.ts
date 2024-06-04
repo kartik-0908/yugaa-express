@@ -2,7 +2,7 @@
 import express from 'express';
 import http from 'http'; // Import the HTTP module
 import { Server as SocketIOServer } from 'socket.io'; // Import Socket.IO
-import { reply } from './common/reply';
+// import { reply } from './common/reply';
 import { getPreviousMessages } from './common/user';
 // const router = require("./routes/v1/reply")
 const webhookRouter = require("./routes/webhooks")
@@ -61,8 +61,8 @@ io.on('connection', (socket) => {
         const { ticketId, roomName, messages, shopifyDomain, conversationId, userInfo, timestamp } = data;
         // Process the message and get AI reply
         io.in(conversationId).emit('status', { status: 'understanding' });
-        const replyMessage = await reply(ticketId,messages, shopifyDomain, conversationId, timestamp, userInfo, io); // Replace with your AI processing logic
-        io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
+        // const replyMessage = await reply(ticketId,messages, shopifyDomain, conversationId, timestamp, userInfo, io); // Replace with your AI processing logic
+        // io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
     });
 
     socket.on('getPreviousMessages', async (data) => {
