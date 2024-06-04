@@ -4,14 +4,16 @@ import http from 'http'; // Import the HTTP module
 import { Server as SocketIOServer } from 'socket.io'; // Import Socket.IO
 import { reply } from './common/reply';
 import { getPreviousMessages } from './common/user';
-const router = require("./routes/v1/reply")
+// const router = require("./routes/v1/reply")
 const webhookRouter = require("./routes/webhooks")
+const emailRouter = require("./routes/email")
 var cors = require('cors')
 const app = express();
 
 app.use(cors())
 app.use('/webhooks', webhookRouter)
-app.use('/v1', router);
+app.use('/email', emailRouter)
+// app.use('/v1', router);
 
 
 app.get('/', async (req, res) => {

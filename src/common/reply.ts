@@ -9,7 +9,7 @@ import {
 import { HumanMessage, AIMessage } from "@langchain/core/messages";
 import { getCustomizationData, getEmail } from "./user";
 import { ChatOpenAI } from "@langchain/openai";
-import redis from "../lib/redis";
+// import redis from "../lib/redis";
 import { z } from "zod";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { StringOutputParser } from "@langchain/core/output_parsers";
