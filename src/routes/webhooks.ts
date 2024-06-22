@@ -170,12 +170,12 @@ const router = Router();
 //     }
 // });
 
-// const extractProductData = (products: any) => {
-//     return products.map((product: any) => {
-//         const { id } = product;
-//         return [id];
-//     });
-// };
+const extractProductData = (products: any) => {
+    return products.map((product: any) => {
+        const { id } = product;
+        return [id];
+    });
+};
 
 // router.post('/products/create', async (req, res) => {
 //     const shop = req.get('x-shopify-shop-domain') || "exampleshop";

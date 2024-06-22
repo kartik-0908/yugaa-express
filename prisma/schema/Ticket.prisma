@@ -1,0 +1,33 @@
+model Ticket {
+  id                  String               @id @default(uuid())
+  shopDomain          String
+  createdAt           DateTime             @default(now()) @map("created_at")
+  updatedAt           DateTime             @map("updated_at")
+  emails              Email[]
+  ticketConversations TicketConversation[]
+}
+
+model TicketConversation {
+  id             String       @id @default(uuid())
+  ticketId       String
+  conversationId String
+  shopDomain     String
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @map("updated_at")
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  ticket         Ticket       @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
+}
+
+model Email {
+  id           String   @id @default(uuid())
+  ticketId     String?
+  emailAddress String   @map("email_address")
+  subject      String
+  storageRef   String   @map("storage_ref")
+  sentAt       DateTime @map("sent_at")
+  ticket       Ticket?  @relation(fields: [ticketId], references: [id])
+
+  @@index([ticketId])
+}

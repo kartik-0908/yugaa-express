@@ -1,0 +1,10 @@
+model Conversation {
+  id                  String               @id @default(uuid())
+  shopDomain          String
+  startedAt           DateTime             @default(now())
+  customerEmail       String?
+  messages            Message[]
+  ticketConversations TicketConversation[]
+
+  @@index([shopDomain])
+}

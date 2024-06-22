@@ -1,0 +1,69 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PlanDetails {
+  shopifyDomain  String   @id @default(uuid()) @map("shopify_domain")
+  planId         Int
+  planStartDate  DateTime
+  convleft       Int
+  shopifyid      String   @default("nothing")
+  eventTimestamp String   @default("default")
+}
+
+model ChatbotCustomization {
+  shopDomain             String   @id @default(uuid()) @map("shop_domain")
+  selectedColor          String
+  botName                String
+  greetingMessage        String
+  fontFamily             String
+  fontColor              String
+  widgetPosition         String
+  toneAndStyle           String
+  userGuidance           String
+  positiveReinforcement  String
+  errorHandling          String
+  politeness             String
+  clarityAndSimplicity   String
+  personalization        String
+  responseLength         String
+  clarificationPrompt    String
+  apologyAndRetryAttempt String
+  errorMessageStyle      String
+  logo                   String?
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @updatedAt @map("updated_at")
+  logoFilename           String   @default("default") @map("logo_filename")
+}
+
+model FeatureRequest {
+  id          String @id @default(uuid())
+  shop        String
+  description String
+  details     String
+  category    String
+}
+
+model RegisteredWebhooks {
+  id         String   @id @default(uuid())
+  address    String
+  topic      String
+  createdAt  DateTime @map("created_at")
+  updatedAt  DateTime @map("updated_at")
+  shopDomain String   @map("shop_domain")
+}
+
+model KnowledgeBase {
+  shopDomain            String   @id @default(uuid()) @map("shop_domain")
+  faqUrl                String?  @map("faq_url")
+  termsAndConditionsUrl String?  @map("terms_and_conditions_url")
+  helpUrl               String?  @map("help_url")
+  videoLinkUrls         String[] @map("video_link_urls")
+  documents             Json[]   @map("documents")
+}

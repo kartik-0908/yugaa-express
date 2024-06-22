@@ -1,19 +1,17 @@
-// src/app.ts
 import express from 'express';
 import http from 'http'; // Import the HTTP module
 import { Server as SocketIOServer } from 'socket.io'; // Import Socket.IO
 // import { reply } from './common/reply';
-import { getPreviousMessages } from './common/user';
-// const router = require("./routes/v1/reply")
-const webhookRouter = require("./routes/webhooks")
-const emailRouter = require("./routes/email")
-var cors = require('cors')
+// import { getPreviousMessages } from './common/user';
 const app = express();
-
+const v1router = require("./routes/v1/routes")
+const webhookRouter = require("./routes/webhooks/routes")
+// const emailRouter = require("./routes/email")
+var cors = require('cors')
 app.use(cors())
 app.use('/webhooks', webhookRouter)
-app.use('/email', emailRouter)
-// app.use('/v1', router);
+// app.use('/email', emailRouter)
+app.use('/v1', v1router);
 
 
 app.get('/', async (req, res) => {
@@ -23,7 +21,7 @@ app.get('/', async (req, res) => {
     })
 })
 
-const port = 3000;
+const port = 3001;
 const server = http.createServer(app); // Create an HTTP server
 const io = new SocketIOServer(server, {
     cors: {
@@ -69,14 +67,14 @@ io.on('connection', (socket) => {
         const { ticketId } = data;
         console.log(`Fetching previous messages for ticket ID: ${ticketId}`);
 
-        const previousMessages = await getPreviousMessages(ticketId);
+        // const previousMessages = await getPreviousMessages(ticketId);
 
-        const formattedMessages = previousMessages.map(message => ({
-            sender: message.senderType === 'user' ? 'user' : 'bot',
-            message: message.text,
-            timeStamp: message.timestamp
-        }));
-        socket.emit('previousMessages', { prevMessages: formattedMessages });
+        // const formattedMessages = previousMessages.map(message => ({
+        //     sender: message.senderType === 'user' ? 'user' : 'bot',
+        //     message: message.text,
+        //     timeStamp: message.timestamp
+        // }));
+        // socket.emit('previousMessages', { prevMessages: formattedMessages });
     });
     socket.on('disconnect', () => {
         console.log('user disconnected');

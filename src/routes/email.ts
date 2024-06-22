@@ -1,12 +1,12 @@
 import axios from 'axios';
 import { Router } from 'express';
 require('dotenv').config();
-const express = require('express');
 const router = Router();
 const { GoogleAuth } = require('google-auth-library');
 const { DNS } = require('@google-cloud/dns');
+var multer  = require('multer');
 
-router.use(express.bodyParser());
+router.use(multer());
 
 const projectId = process.env.PROJECT_ID;
 const clientEmail = process.env.CLIENT_EMAIL;
@@ -114,7 +114,7 @@ router.get('/', (req, res) => {
 })
 
 
-router.post('/', (req, res) => {
+router.post('/parse', (req, res) => {
     // createSubdomain('user-subdomain'); 
     // createSubdomain("hihihi")
     // quickstart();
