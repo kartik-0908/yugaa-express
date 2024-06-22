@@ -54,7 +54,6 @@ jobs:
            sudo docker rm yugaa-express || true
            echo "Removed existing container if it existed"
            sudo docker run -d --name yugaa-express -p 3001:3001 \
-           -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
            -e hi=fromhi \
            -e hi_env=fromhi_env \
            ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
