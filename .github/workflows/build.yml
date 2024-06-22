@@ -56,4 +56,5 @@ jobs:
            sudo docker run -d --name yugaa-express -p 3001:3001 \
            -e hi=fromhi \
            -e hi_env=fromhi_env \
+           -e SHOPIFY_SECRET_KEY=${{ secrets.SHOPIFY_SECRET_KEY }} \
            ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
