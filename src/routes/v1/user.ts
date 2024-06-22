@@ -10,19 +10,23 @@ router.post('/invite', async (req, res) => {
     const { body } = req
     let { shop } = body
     const { email } = body
-    const { role } = body
-    shop += ".myshopify.com"
+    let { role } = body
+    role = role.toLowerCase()
+    if (!shop.endsWith(".myshopify.com")) {
+        shop += ".myshopify.com";
+    }
+    console.log(`invite details ${email} ${role} ${shop}`)
     console.log(email)
     try {
         const response = await clerkClient.invitations.createInvitation({
             emailAddress: email,
             publicMetadata: {
-              "role": role,
-              "shopDomain": shop,
+                "role": role,
+                "shopDomain": shop,
             },
             ignoreExisting: true
-          });
-          res.json({
+        });
+        res.json({
             "message": "ok",
         })
     } catch (error) {
@@ -34,7 +38,7 @@ router.post('/invite', async (req, res) => {
 
 
 
-    
+
 })
 router.get('/get-role', async (req, res) => {
     const id = req.query.id;
