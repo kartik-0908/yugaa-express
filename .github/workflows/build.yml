@@ -33,7 +33,7 @@ jobs:
         echo "Listing all env variables (names only):"
         env | cut -d= -f1
         echo "Checking for YOUR_API_KEY:"
-        env | grep YOUR_API_KEY
+        env | grep YOUR_API_KEY || echo "YOUR_API_KEY is not set"
 
   deploy:
     runs-on: ubuntu-latest
