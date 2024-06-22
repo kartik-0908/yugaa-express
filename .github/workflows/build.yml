@@ -28,6 +28,12 @@ jobs:
         context: .
         push: true
         tags: ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
+    - name: Debug environment
+      run: |
+        echo "Listing all env variables (names only):"
+        env | cut -d= -f1
+        echo "Checking for YOUR_API_KEY:"
+        env | grep YOUR_API_KEY
 
   deploy:
     runs-on: ubuntu-latest
