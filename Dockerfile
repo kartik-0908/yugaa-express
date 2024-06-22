@@ -17,4 +17,4 @@ COPY . .
 CMD [ "npm", "run", "dev" ]
 
 # Inform Docker that the container listens on the specified port at runtime.
-EXPOSE 3000
+EXPOSE 3001

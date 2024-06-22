@@ -45,4 +45,4 @@ jobs:
             docker stop yugaa-express
             docker rm yugaa-express
           fi
-          docker run -d --name yugaa-express -p 3005:3000 ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
+          docker run -d --name yugaa-express -p 3001:3001 ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
