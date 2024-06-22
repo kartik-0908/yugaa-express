@@ -13,6 +13,9 @@ RUN npm install
 # Copy local code to the container image.
 COPY . .
 
+# Run prisma generate
+RUN npx prisma generate
+
 # Run the web service on container startup.
 CMD [ "npm", "run", "dev" ]
 
