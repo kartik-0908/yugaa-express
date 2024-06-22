@@ -23,9 +23,10 @@ app.get('/', async (req, res) => {
 
 app.get('/check', async (req, res) => {
     console.log("inside check root")
+    console.log("process.env.hi")
+    console.log(process.env.hi)
     res.json({
-        "env":process.env.DATABSE_URL,
-        "message": "status ok"
+        "message": "status ok inside check"
     })
 })
 
