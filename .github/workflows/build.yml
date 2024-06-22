@@ -41,6 +41,6 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
           docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
-          docker stop yugaa-container || true
-          docker rm yugaa-container || true
-          docker run -d --name yugaa-container -p 3000:3000 ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
+          docker stop yugaa-express || true
+          docker rm yugaa-express || true
+          docker run -d --name yugaa-express -p 3005:3000 ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
