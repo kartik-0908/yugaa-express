@@ -21,6 +21,14 @@ app.get('/', async (req, res) => {
     })
 })
 
+app.get('/check', async (req, res) => {
+    console.log("inside check root")
+    res.json({
+        "env":process.env.DATABSE_URL,
+        "message": "status ok"
+    })
+})
+
 const port = 3001;
 const server = http.createServer(app); // Create an HTTP server
 const io = new SocketIOServer(server, {

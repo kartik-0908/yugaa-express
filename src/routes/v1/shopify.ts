@@ -12,10 +12,10 @@ router.post('/access-token', async (req, res) => {
     const { code } = body
     console.log(req.body)
     try {
-        console.log(process.env.shopify_Key)
+        console.log(process.env.SHOPIFY_KEY)
         const response = await axios.post(`https://${shop}/admin/oauth/access_token`, {
-            client_id: process.env.shopify_Key,
-            client_secret: process.env.shopify_Secret,
+            client_id: process.env.SHOPIFY_KEY,
+            client_secret: process.env.SHOPIFY_SECRET_KEY,
             code: code,
         }, {
             headers: {

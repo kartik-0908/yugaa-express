@@ -43,4 +43,21 @@ jobs:
           sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
           sudo docker stop yugaa-express || true
           sudo docker rm yugaa-express || true
-          sudo docker run -d --name yugaa-express -p 3001:3001 ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
+          sudo docker run -d --name yugaa-express -p 3001:3001 \
+          -e CLERK_WEBHOOK_SECRET_KEY=${{ secrets.CLERK_WEBHOOK_SECRET_KEY }} \
+          -e CLERK_PUBLISHABLE_KEY=${{ secrets.CLERK_PUBLISHABLE_KEY }} \
+          -e CLERK_SECRET_KEY=${{ secrets.CLERK_SECRET_KEY }} \
+          -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          -e SHOPIFY_KEY=${{ secrets.SHOPIFY_KEY }} \
+          -e LANGCHAIN_TRACING_V2=${{ secrets.LANGCHAIN_TRACING_V2 }} \
+          -e SHOPIFY_SECRET_KEY=${{ secrets.SHOPIFY_SECRET_KEY }} \
+          -e LANGCHAIN_ENDPOINT=${{ secrets.LANGCHAIN_ENDPOINT }} \
+          -e LANGCHAIN_API_KEY=${{ secrets.LANGCHAIN_API_KEY }} \
+          -e LANGCHAIN_PROJECT=${{ secrets.LANGCHAIN_PROJECT }} \
+          -e LANGCHAIN_CALLBACKS_BACKGROUND=${{ secrets.LANGCHAIN_CALLBACKS_BACKGROUND }} \
+          -e PROJECT_ID=${{ secrets.PROJECT_ID }} \
+          -e CLIENT_EMAIL=${{ secrets.CLIENT_EMAIL }} \
+          -e PRIVATE_KEY=${{ secrets.PRIVATE_KEY }} \
+          -e LOGO_BUCKET_NAME=${{ secrets.LOGO_BUCKET_NAME }} \
+          -e FILES_BUCKET_NAME=${{ secrets.FILES_BUCKET_NAME }} \
+          ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
