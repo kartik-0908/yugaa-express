@@ -40,9 +40,7 @@ jobs:
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
-          docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
-          if [ $(docker ps -a -q -f name=yugaa-express) ]; then
-            docker stop yugaa-express
-            docker rm yugaa-express
-          fi
-          docker run -d --name yugaa-express -p 3001:3001 ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
+          sudo docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
+          sudo docker stop yugaa-express || true
+          sudo docker rm yugaa-express || true
+          sudo docker run -d --name yugaa-express -p 3001:3001 ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
