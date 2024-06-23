@@ -79,15 +79,6 @@ export const storeUser = async (clerkUser: any) => {
             });
             console.log('User updated:', updatedUser);
         } else {
-            // Create new user
-            const role = await getRoleByEmail(userData.email)
-            userData.role = role || "admin";
-            const res = await clerkClient.users.updateUserMetadata(
-                userData.id,
-                {
-                    publicMetadata: { role: userData.role },
-                }
-            );
             const newUser = await prisma.user.create({
                 data: userData,
             });
