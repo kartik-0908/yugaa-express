@@ -13,10 +13,10 @@ import { AIMessage, BaseMessage, FunctionMessage, } from "@langchain/core/messag
 import { convertToOpenAIFunction, convertToOpenAITool } from "@langchain/core/utils/function_calling";
 export const embeddingModel = new OpenAIEmbeddings(
   {
-    azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME,
-    azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME,
-    azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY,
-    azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION
+    azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME || "",
+    azureOpenAIApiInstanceName: process.env.AZURE_OPENAI_API_INSTANCE_NAME || "",
+    azureOpenAIApiKey: process.env.AZURE_OPENAI_API_KEY || "",
+    azureOpenAIApiVersion: process.env.AZURE_OPENAI_API_VERSION || ""
   }
 );
 export const chatModel = new ChatOpenAI(
