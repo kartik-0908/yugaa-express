@@ -1,3 +1,4 @@
+require('dotenv').config();
 import { MongoClient } from "mongodb";
 import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { END } from "@langchain/langgraph";
@@ -6,12 +7,10 @@ import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts
 import { tool } from "@langchain/core/tools";
 import { START } from "@langchain/langgraph";
 import { SqliteSaver } from "@langchain/langgraph/checkpoint/sqlite"
-
 import { z } from "zod";
 import { pull } from "langchain/hub";
 import { AIMessage, BaseMessage, FunctionMessage, } from "@langchain/core/messages";
 import { convertToOpenAIFunction, convertToOpenAITool } from "@langchain/core/utils/function_calling";
-require('dotenv').config();
 export const embeddingModel = new OpenAIEmbeddings(
   {
     azureOpenAIApiDeploymentName: process.env.AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME,
