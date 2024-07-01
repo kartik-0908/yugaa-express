@@ -1,6 +1,10 @@
 import express from 'express';
 import http from 'http'; // Import the HTTP module
 import { Server as SocketIOServer } from 'socket.io'; // Import Socket.IO
+require('dotenv').config();
+
+// Your existing code
+
 // import { reply } from './common/reply';
 // import { getPreviousMessages } from './common/user';
 const app = express();
