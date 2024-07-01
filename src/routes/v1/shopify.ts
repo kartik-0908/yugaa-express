@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { getRoleById, initializePlan, setDomainwithId, storeToken } from '../../common/db';
+import { db } from '../../common/db';
 import axios from 'axios';
+import { publishShopifyStoreProcessData } from '../../common/pubsubPublisher';
 const express = require('express');
 const router = Router();
 
@@ -24,8 +25,32 @@ router.post('/access-token', async (req, res) => {
         });
         const {data} = response
         console.log(data)
-        await storeToken(shop, data.access_token)
-        await initializePlan(shop)
+        const accessToken  = data.access_token;
+        const existingShop = await db.shopifyInstalledShop.findUnique({
+            where: {
+                shop: shop,
+            },
+        });
+        if (existingShop) {
+            const updatedShop = await db.shopifyInstalledShop.update({
+                where: {
+                    shop: shop,
+                },
+                data: {
+                    accessToken: accessToken,
+                },
+            });
+            console.log("Updated token for existing shop: ", updatedShop);
+        } else {
+            const newInstalledShop = await db.shopifyInstalledShop.create({
+                data: {
+                    shop: shop,
+                    accessToken: accessToken,
+                },
+            });
+            console.log("Stored token for new shop: ", newInstalledShop);
+        }
+        await publishShopifyStoreProcessData(shop)
     } catch (error) {
         console.log(error)
     }
@@ -39,7 +64,6 @@ router.post('/get-members', async (req, res) => {
     const { body } = req
     const { shopDomain } = body
     console.log(req.body)
-    // await setDomainwithId(id, shopDomain);
     res.json({
         "message": "ok",
     })

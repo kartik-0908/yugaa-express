@@ -1,0 +1,45 @@
+model AIEscalatedTicket {
+    id                     String                   @id @default(uuid())
+    customerEmail          String
+    aiConversationTicketId String
+    aiConversationTicket   AIConversationTicket     @relation(fields: [aiConversationTicketId], references: [id])
+    status                 String
+    priority               String
+    category               String
+    events                 AIEscalatedTicketEvent[]
+    createdAt              DateTime                 @default(now())
+    updatedAt              DateTime                 @updatedAt
+}
+
+model AIEscalatedTicketEvent {
+    id                  String            @id @default(uuid())
+    aiEscalatedTicketId String
+    aiEscalatedTicket   AIEscalatedTicket @relation(fields: [aiEscalatedTicketId], references: [id])
+    eventType           String
+    changedBy           String?
+    oldStatus           String?
+    newStatus           String?
+    assignedTo          String?
+    assignedBy          String?
+    newPriority         String?
+    newCategory         String?
+    emailId             String? // New field to store email ID if applicable
+    email               Email?            @relation(fields: [emailId], references: [id])
+    createdAt           DateTime          @default(now())
+}
+
+model Email {
+    id     String                   @id @default(uuid())
+    events AIEscalatedTicketEvent[]
+}
+
+//events type
+
+// Ticket Assigned()
+// Ticket Status Changed
+// Ticket Priority Changed
+// Ticket Category Changed
+// Ticket Reopened
+// ticket created 
+// user replied 
+// member replied

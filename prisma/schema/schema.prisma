@@ -10,7 +10,7 @@ datasource db {
 }
 
 model PlanDetails {
-  shopifyDomain  String   @id @default(uuid()) @map("shopify_domain")
+  shopifyDomain  String   @id
   planId         Int
   planStartDate  DateTime
   convleft       Int
@@ -19,7 +19,7 @@ model PlanDetails {
 }
 
 model ChatbotCustomization {
-  shopDomain             String   @id @default(uuid()) @map("shop_domain")
+  shopDomain             String   @id @default(uuid())
   selectedColor          String
   botName                String
   greetingMessage        String
@@ -61,10 +61,11 @@ model RegisteredWebhooks {
 }
 
 model KnowledgeBase {
-  shopDomain            String   @id @default(uuid()) @map("shop_domain")
-  faqUrl                String?  @map("faq_url")
-  termsAndConditionsUrl String?  @map("terms_and_conditions_url")
-  helpUrl               String?  @map("help_url")
-  videoLinkUrls         String[] @map("video_link_urls")
-  documents             Json[]   @map("documents")
+  shopDomain            String   @id @default(uuid())
+  faqUrl                String?
+  termsAndConditionsUrl String?
+  helpUrl               String?
+  videoLinkUrls         String[]
+  documents             Json[]
 }
+

@@ -26,11 +26,12 @@ model InvitedUser {
 }
 
 model ShopifyInstalledShop {
-  id               String @id @default(uuid())
-  shop             String @unique
+  id               String   @id @default(uuid())
+  shop             String   @unique
   accessToken      String?
-  adminInviteCode  String @default(uuid())
-  memberInviteCode String @default(uuid())
+  email            String[]
+  adminInviteCode  String   @default(uuid())
+  memberInviteCode String   @default(uuid())
 }
 
 model Customer {

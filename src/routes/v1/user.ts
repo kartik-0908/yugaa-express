@@ -1,6 +1,5 @@
 import { Router } from 'express';
-import { getInviteCodesForShop, getRoleById, getUsersForShopDomain, setDomainwithId } from '../../common/db';
-import axios from 'axios';
+import { db } from '../../common/db';
 import { clerkClient } from '@clerk/clerk-sdk-node';
 const express = require('express');
 const router = Router();
@@ -36,44 +35,57 @@ router.post('/invite', async (req, res) => {
             "message": "error",
         })
     }
-
-
-
-
 })
 router.get('/get-role', async (req, res) => {
-    const id = req.query.id;
+    const id = req.query.id as string;
     console.log("insd get role")
 
     if (!id) {
         return res.status(400).json({ error: 'Email is required' });
     }
     console.log(id)
-    const role = await getRoleById(id as string)
-    console.log(role)
-    return res.json({ role });
+    const invitedUser = await db.user.findUnique({
+        where: { id },
+    });
+    console.log(invitedUser?.role)
+    return res.json({ role: invitedUser?.role });
 });
-
-router.post('/set-domain', async (req, res) => {
-    const { body } = req
-    const { id } = body
-    const { shopDomain } = body
-    console.log(req.body)
-    await setDomainwithId(id, shopDomain);
-    res.json({
-        "message": "ok",
-    })
-    return;
-})
 
 router.post('/get-members', async (req, res) => {
     const { body } = req
     const { shopDomain } = body
     console.log(req.body)
-    const data = await getInviteCodesForShop(shopDomain)
-    const adminInviteCode = data?.adminInviteCode
-    const memberInviteCode = data?.memberInviteCode
-    const users = await getUsersForShopDomain(shopDomain)
+    const shopData = await db.shopifyInstalledShop.findUnique({
+        where: {
+            shop: shopDomain,
+        },
+        select: {
+            adminInviteCode: true,
+            memberInviteCode: true,
+        },
+    });
+
+    if (!shopData) {
+        console.log(`No shop found with the shop name: ${shopDomain}`);
+        res.json({
+            "message": "No shop found with the shop name: ${shopDomain}",
+        })
+        return;
+    }
+    const adminInviteCode = shopData.adminInviteCode;
+    const memberInviteCode = shopData.memberInviteCode;
+    const users = await db.user.findMany({
+        where: {
+            shopDomain: shopDomain,
+        },
+        select: {
+            email: true,
+            firstName: true,
+            lastName: true,
+            image: true,
+            role: true,
+        },
+    });
     console.log(adminInviteCode)
     res.json({
         "message": "ok",

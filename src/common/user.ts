@@ -56,24 +56,18 @@ import { client } from "../lib/prisma"
 //     throw error;
 //   }
 // }
-// export const getPreviousMessages = async (ticketId: string) => {
-//   try {
-//     return await client.message.findMany({
-//       where: {
-//         Conversation: {
-//           ticketConversations: {
-//             some: {
-//               ticketId: ticketId,
-//             }
-//           }
-//         }
-//       },
-//       orderBy: {
-//         timestamp: 'asc',
-//       }
-//     });
-//   } catch (error) {
-//     console.error('Error fetching previous messages:', error);
-//     throw error;
-//   }
-// };
+export const getPreviousMessages = async (ticketId: string) => {
+    try {
+        return await client.message.findMany({
+            where: {
+                ticketId
+            },
+            orderBy: {
+                createdAt: 'asc',
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching previous messages:', error);
+        throw error;
+    }
+};

@@ -8,28 +8,13 @@ var multer  = require('multer');
 
 router.use(multer());
 
-const projectId = process.env.PROJECT_ID;
-const clientEmail = process.env.CLIENT_EMAIL;
-const privateKey = process.env.PRIVATE_KEY;
 
-// const dns = new DNS({
-//     projectId: projectId,
-//     credentials: {
-//         client_email: clientEmail,
-//         private_key: privateKey,
-//     },
-// });
-// const dns = new DNS({
-//     projectId,
-
-// });
 const dns = new DNS({
-    projectId: projectId,
-    clientEmail: clientEmail,
-    privateKey: privateKey,
+    projectId: process.env.PROJECT_ID,
+    clientEmail:  process.env.CLIENT_EMAIL,
+    privateKey: process.env.PRIVATE_KEY,
 });
 const zone = dns.zone('yugaa')
-// const zone = dns.zone('yugaa');
 
 // async function createSubdomain(subdomain: string) {
 //     const record = zone.record('A', {

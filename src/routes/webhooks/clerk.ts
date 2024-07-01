@@ -3,13 +3,25 @@ const router = Router();
 import bodyParser from 'body-parser';
 import { Webhook, WebhookRequiredHeaders } from 'svix';
 import { IncomingHttpHeaders } from 'http';
-import { storeUser } from '../../common/db';
+import { db } from '../../common/db';
 
 type EventType = "user.created" | "user.updated" | "*";
 
 type Event = {
     data: {
         id: string,
+        email_addresses: {
+            email_address: string,
+            verification: {
+                status: string
+            }
+        }[] | [],
+        first_name: string,
+        last_name: string,
+        last_sign_in_at: number,
+        profile_image_url: string,
+        created_at: number,
+        updated_at: number,
         public_metadata: {
             role?: string,
             shopDomain?: string
@@ -34,7 +46,34 @@ router.post('/', async function (req, res) {
         const eventType = evt.type;
         if (eventType === 'user.updated' || eventType === 'user.created') {
             console.log(`User ${id} was ${eventType}`);
-            await storeUser(attributes)
+            const userData = {
+                id: attributes.id,
+                email: attributes?.email_addresses[0].email_address,
+                firstName: attributes.first_name,
+                lastName: attributes.last_name,
+                lastLoginAt: new Date(attributes.last_sign_in_at),
+                shopDomain: attributes.public_metadata.shopDomain, // Adjust as necessary
+                emailVerified: attributes.email_addresses[0].verification.status === 'verified' ? new Date() : null,
+                image: attributes.profile_image_url,
+                createdAt: new Date(attributes.created_at),
+                updatedAt: new Date(attributes.updated_at),
+                role: attributes.public_metadata.role, // Adjust if you have this data
+            };
+            const existingUser = await db.user.findUnique({
+                where: { email: userData.email },
+            });
+            if (existingUser) {
+                const updatedUser = await db.user.update({
+                    where: { email: userData.email },
+                    data: userData,
+                });
+                console.log('User updated:', updatedUser);
+            } else {
+                const newUser = await db.user.create({
+                    data: userData,
+                });
+                console.log('User stored:', newUser);
+            }
         }
         res.status(200).json({
             success: true,

@@ -6,6 +6,12 @@ import { Server as SocketIOServer } from 'socket.io'; // Import Socket.IO
 const app = express();
 const v1router = require("./routes/v1/routes")
 const webhookRouter = require("./routes/webhooks/routes")
+import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
+import { publishShopifyStoreProcessData } from './common/pubsubPublisher';
+import { replytriaal } from './common/reply copy';
+import { sendInitialEmail } from './common/reply';
+import { getPreviousMessages } from './common/user';
+import { db } from './common/db';
 // const emailRouter = require("./routes/email")
 var cors = require('cors')
 app.use(cors())
@@ -15,10 +21,22 @@ app.use('/v1', v1router);
 
 
 app.get('/', async (req, res) => {
+    // await publishShopifyStoreProcessData("may15ka.myshopify.com")
+    // await replytriaal();
     console.log("inside api root")
-    res.json({
-        "message": "status ok"
-    })
+    // await sendInitialEmail()
+    try {
+        res.json({
+            "message": "status ok"
+        })
+    } catch (error) {
+        console.log(error);
+        res.json({
+
+            "message": "error"
+        })
+    }
+
 })
 
 app.get('/check', async (req, res) => {
@@ -34,18 +52,16 @@ app.get('/check', async (req, res) => {
 })
 
 const port = 3001;
-const server = http.createServer(app); // Create an HTTP server
+const server = http.createServer(app);
 const io = new SocketIOServer(server, {
     cors: {
-        origin: '*', // You can specify the allowed origins here
+        origin: '*',
         methods: ['GET', 'POST'],
     }
-}); // Create a new instance of Socket.IO with CORS configuration
+});
 
-// Define your WebSocket events
 io.on('connection', (socket) => {
     console.log('a user connected');
-
     socket.on('clientType', (data) => {
         const { type, merchantId } = data;
         if (type === 'endUser') {
@@ -53,7 +69,6 @@ io.on('connection', (socket) => {
             socket.join(roomName);
             console.log(`End user connected and joined room: ${roomName}`);
             socket.emit('roomAssigned', { roomName });
-            // Add logic to interact with AI here
         } else if (type === 'merchant') {
             const roomName = `merchant-${merchantId}`;
             socket.join(roomName);
@@ -68,32 +83,39 @@ io.on('connection', (socket) => {
     });
 
     socket.on('sendMessage', async (data) => {
-        const { ticketId, roomName, messages, shopifyDomain, conversationId, userInfo, timestamp } = data;
-        // Process the message and get AI reply
-        io.in(conversationId).emit('status', { status: 'understanding' });
-        // const replyMessage = await reply(ticketId,messages, shopifyDomain, conversationId, timestamp, userInfo, io); // Replace with your AI processing logic
-        // io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
+        const { ticketId, roomName, message, shopifyDomain, userInfo, timestamp } = data;
+        // io.in(conversationId).emit('status', { status: 'understanding' });
+        const replyMessage = await replytriaal(ticketId, message)
+        io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
     });
 
     socket.on('getPreviousMessages', async (data) => {
         const { ticketId } = data;
         console.log(`Fetching previous messages for ticket ID: ${ticketId}`);
-
-        // const previousMessages = await getPreviousMessages(ticketId);
-
-        // const formattedMessages = previousMessages.map(message => ({
-        //     sender: message.senderType === 'user' ? 'user' : 'bot',
-        //     message: message.text,
-        //     timeStamp: message.timestamp
-        // }));
-        // socket.emit('previousMessages', { prevMessages: formattedMessages });
+        const previousMessages = await getPreviousMessages(ticketId);
+        const formattedMessages = previousMessages.map(message => ({
+            sender: message.sender,
+            message: message.message,
+            timeStamp: message.createdAt
+        }));
+        // console.log(formattedMessages)
+        socket.emit('previousMessages', { prevMessages: formattedMessages });
+    });
+    socket.on('create-ticket', async (data) => {
+        const { ticketId } = data;
+        console.log(`Createing ticket ID: ${ticketId}`);
+        await db.aIConversationTicket.create({
+            data: {
+                id: ticketId
+            }
+        })
     });
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
     socket.on('message', (msg) => {
         console.log('message: ' + msg);
-        io.emit('message', msg); 
+        io.emit('message', msg);
     });
 });
 
