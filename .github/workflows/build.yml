@@ -82,4 +82,5 @@ jobs:
            -e AZURE_OPENAI_API_CHAT_DEPLOYMENT_NAME="${{ secrets.AZURE_OPENAI_API_CHAT_DEPLOYMENT_NAME }}" \
            -e AZURE_OPENAI_API_CHAT_VERSION="${{ secrets.AZURE_OPENAI_API_CHAT_VERSION }}" \
            -e SENDGRID_API_KEY="${{ secrets.SENDGRID_API_KEY }}" \
+           -e SQLITE_URL="${{ secrets.SQLITE_URL }}" \
            ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest

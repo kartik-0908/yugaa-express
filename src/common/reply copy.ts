@@ -210,7 +210,7 @@ workflow.addEdge(START, "agent");
 
 const app = workflow.compile();
 
-const memory = SqliteSaver.fromConnString("/home/kartik/yugaa/trialdb.sqlite");
+const memory = SqliteSaver.fromConnString(process.env.SQLITE_URL || "");
 const persistentGraph = workflow.compile({ checkpointer: memory });
 
 // function create_toll_node_with_fallback() {
