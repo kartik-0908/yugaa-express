@@ -72,4 +72,14 @@ jobs:
            -e PRIVATE_KEY="${{ secrets.PRIVATE_KEY }}" \
            -e LOGO_BUCKET_NAME="${{ secrets.LOGO_BUCKET_NAME }}" \
            -e FILES_BUCKET_NAME="${{ secrets.FILES_BUCKET_NAME }}" \
+           -e MONGODB_ATLAS_URI="${{ secrets.MONGODB_ATLAS_URI }}" \
+           -e MONGO_DB_NAME="${{ secrets.MONGO_DB_NAME }}" \
+           -e MONGO_DB_COLLECTION="${{ secrets.MONGO_DB_COLLECTION }}" \
+           -e AZURE_OPENAI_API_KEY="${{ secrets.AZURE_OPENAI_API_KEY }}" \
+           -e AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME="${{ secrets.AZURE_OPENAI_API_EMBEDDING_DEPLOYMENT_NAME }}" \
+           -e AZURE_OPENAI_API_INSTANCE_NAME="${{ secrets.AZURE_OPENAI_API_INSTANCE_NAME }}" \
+           -e AZURE_OPENAI_API_VERSION="${{ secrets.AZURE_OPENAI_API_VERSION }}" \
+           -e AZURE_OPENAI_API_CHAT_DEPLOYMENT_NAME="${{ secrets.AZURE_OPENAI_API_CHAT_DEPLOYMENT_NAME }}" \
+           -e AZURE_OPENAI_API_CHAT_VERSION="${{ secrets.AZURE_OPENAI_API_CHAT_VERSION }}" \
+           -e SENDGRID_API_KEY="${{ secrets.SENDGRID_API_KEY }}" \
            ${{ secrets.DOCKER_HUB_USERNAME }}/yugaa-express:latest
