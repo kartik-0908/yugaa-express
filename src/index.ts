@@ -28,6 +28,8 @@ app.get('/', async (req, res) => {
     // await publishShopifyStoreProcessData("may15ka.myshopify.com")
     // await replytriaal();
     console.log("inside api root")
+    console.log(process.env.AZURE_OPENAI_API_KEY)
+
     // await sendInitialEmail()
     try {
         res.json({
