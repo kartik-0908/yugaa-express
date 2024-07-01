@@ -210,7 +210,8 @@ workflow.addEdge(START, "agent");
 
 const app = workflow.compile();
 
-const memory = SqliteSaver.fromConnString(process.env.SQLITE_URL || "");
+// const memory = SqliteSaver.fromConnString(process.env.SQLITE_URL || "");
+const memory = SqliteSaver.fromConnString(process.env.SQLITE_URL || "/home/ubuntu/sqlite/maindb.sqlite");
 const persistentGraph = workflow.compile({ checkpointer: memory });
 
 
