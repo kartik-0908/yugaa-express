@@ -1,21 +1,15 @@
 import express from 'express';
-import http from 'http'; // Import the HTTP module
-import { Server as SocketIOServer } from 'socket.io'; // Import Socket.IO
+import http from 'http';
+import { Server as SocketIOServer } from 'socket.io';
 require('dotenv').config();
-
-// Your existing code
-
-// import { reply } from './common/reply';
-// import { getPreviousMessages } from './common/user';
 const app = express();
 const v1router = require("./routes/v1/routes")
 const webhookRouter = require("./routes/webhooks/routes")
 import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { publishShopifyStoreProcessData } from './common/pubsubPublisher';
-import { replytriaal } from './common/reply copy';
-import { sendInitialEmail } from './common/reply';
 import { getPreviousMessages } from './common/user';
 import { db } from './common/db';
+import { replytriaal } from './common/reply.js';
 // const emailRouter = require("./routes/email")
 var cors = require('cors')
 app.use(cors())
@@ -91,8 +85,8 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', async (data) => {
         const { ticketId, roomName, message, shopifyDomain, userInfo, timestamp } = data;
         // io.in(conversationId).emit('status', { status: 'understanding' });
-        const replyMessage = await replytriaal(ticketId, message)
-        io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
+        const replyMessage = await replytriaal(ticketId, message, shopifyDomain,io,roomName)
+        // io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
     });
 
     socket.on('getPreviousMessages', async (data) => {
@@ -110,11 +104,19 @@ io.on('connection', (socket) => {
     socket.on('create-ticket', async (data) => {
         const { ticketId } = data;
         console.log(`Createing ticket ID: ${ticketId}`);
-        await db.aIConversationTicket.create({
-            data: {
+        const resp = await db.aIConversationTicket.findUnique({
+            where: {
                 id: ticketId
             }
         })
+        if (!resp) {
+            await db.aIConversationTicket.create({
+                data: {
+                    id: ticketId
+                }
+            })
+        }
+
     });
     socket.on('disconnect', () => {
         console.log('user disconnected');

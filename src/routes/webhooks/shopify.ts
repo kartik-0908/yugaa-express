@@ -158,7 +158,14 @@ router.post('/app/uninstalled', async (req, res) => {
 
         if (installedShop) {
             await db.registeredWebhooks.deleteMany({ where: { shopDomain: shop } });
-            await db.shopifyInstalledShop.deleteMany({ where: { shop } });
+            await db.shopifyInstalledShop.update({
+                where: {
+                    shop
+                },
+                data: {
+                    accessToken: null
+                }
+            })
             await db.planDetails.update({
                 where: { shopifyDomain: shop },
                 data: { planId: 0, convleft: 0 },
