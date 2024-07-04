@@ -182,7 +182,42 @@ router.post('/save-mssg', async function (req, res) {
     }
 })
 
-
+router.post('/escalate-ticket', async function (req, res) {
+    const { ticketId, shopDomain, userEmail } = req.body;
+    const shop = trimShopifyDomain(shopDomain)
+    try {
+        await db.$transaction(async (prisma) => {
+            // Count the number of tickets for the shopDomain
+            const ticketCount = await prisma.aIEscalatedTicket.count({
+                where: {
+                    shopDomain: shopDomain,
+                },
+            });
+            const newTicketId = `${shop}-${ticketCount + 1}`;
+            const ticketId = newTicketId
+            await prisma.aIEscalatedTicket.create({
+                data: {
+                    id: newTicketId,
+                    shopDomain: shopDomain,
+                    customerEmail: userEmail,
+                    aiConversationTicketId: ticketId,
+                },
+            });
+            await prisma.$executeRaw`SELECT pg_advisory_xact_lock(1);`;
+        }, {
+            isolationLevel: 'Serializable', // Ensuring the highest isolation level
+        });
+        res.status(200).json({
+            success: true,
+            message: 'Webhook received',
+        });
+    } catch (err) {
+        res.status(400).json({
+            success: false,
+            message: (err as Error).message,
+        });
+    }
+})
 
 
 

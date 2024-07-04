@@ -1,11 +1,12 @@
 model AIEscalatedTicket {
     id                     String                   @id @default(uuid())
+    shopDomain             String
     customerEmail          String
     aiConversationTicketId String
     aiConversationTicket   AIConversationTicket     @relation(fields: [aiConversationTicketId], references: [id])
-    status                 String
-    priority               String
-    category               String
+    status                 String                   @default("unassigned")
+    priority               String?
+    category               String?
     events                 AIEscalatedTicketEvent[]
     createdAt              DateTime                 @default(now())
     updatedAt              DateTime                 @updatedAt

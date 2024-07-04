@@ -69,4 +69,17 @@ export async function publishStoreMssg(ticketId: string, sender: string, message
     }
 }
 
-
+export async function publishTicketEscalate(ticketId: string, shopDomain: string, userEmail: string) {
+    const topicName = 'ticketEscalate';
+    const dataBuffer = Buffer.from(JSON.stringify({
+        ticketId,
+        shopDomain,
+        userEmail
+    }));
+    try {
+        const messageId = await pubSubClient.topic(topicName).publishMessage({ data: dataBuffer });
+        console.log(`Message ${messageId} published to ${topicName}.`);
+    } catch (error) {
+        console.error(`Error publishing message to ${topicName}:`, error);
+    }
+}
