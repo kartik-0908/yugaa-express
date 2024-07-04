@@ -133,7 +133,7 @@ export async function replytriaal (ticketId: string, query: string, shopDomain: 
 
 }
 
-function trimMyShopifyDomain(inputString: string) {
+export function trimMyShopifyDomain(inputString: string) {
   const suffix = ".myshopify.com";
   if (inputString.endsWith(suffix)) {
     return inputString.slice(0, -suffix.length);
