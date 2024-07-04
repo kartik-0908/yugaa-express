@@ -85,7 +85,15 @@ io.on('connection', (socket) => {
     socket.on('sendMessage', async (data) => {
         const { ticketId, roomName, message, shopifyDomain, userInfo, timestamp } = data;
         // io.in(conversationId).emit('status', { status: 'understanding' });
-        const replyMessage = await replytriaal(ticketId, message, shopifyDomain,io,roomName)
+        console.log(message)
+        await replytriaal( ticketId, message, shopifyDomain, io, roomName,false)
+        // io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
+    });
+    socket.on('ticketEscalate', async (data) => {
+        const { ticketId, roomName, email, shopifyDomain } = data;
+        // io.in(conversationId).emit('status', { status: 'understanding' });
+        // console.log(message)
+        await replytriaal(ticketId, "", shopifyDomain, io, roomName, true, email)
         // io.in(roomName).emit('receiveMessage', { sender: 'bot', message: replyMessage });
     });
 

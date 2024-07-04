@@ -3,7 +3,6 @@ import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { MongoClient } from "mongodb";
 import { z } from "zod";
-import { IState } from "../reply.js";
 const retriverSchema = z.object({
     question: z.string(),
     shopDomain: z.string()
@@ -19,16 +18,18 @@ const embeddingModel = new OpenAIEmbeddings(
     }
 );
 export const retrieverTool = tool(
-    async (input:{question: string, shopDomain: string}): Promise<any> => {
-        console.log(process.env.MONGO_DB_NAME)
+    async (input:{question: string, shopDomain: string}, config): Promise<any> => {
+        // console.log(process.env.MONGO_DB_NAME)
+        // console.log(config)
         const vectorStore = new MongoDBAtlasVectorSearch(embeddingModel, {
             collection
         });
+        let shop = input.shopDomain + ".myshopify.com"
         const retriever = vectorStore.asRetriever({
             filter:{
                 preFilter:{
                     yugaa_shop:{
-                        $eq: input.shopDomain
+                        $eq: shop
                     }
                 }
             }

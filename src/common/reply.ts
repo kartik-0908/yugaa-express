@@ -1,21 +1,17 @@
 require('dotenv').config();
-import { END } from "@langchain/langgraph";
 import { ChatOpenAI } from "@langchain/openai";
 import { START } from "@langchain/langgraph";
 import { SqliteSaver } from "@langchain/langgraph/checkpoint/sqlite"
-import { AIMessage, BaseMessage, HumanMessage, isAIMessage } from "@langchain/core/messages";
+import { AIMessageChunk, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { StateGraphArgs } from "@langchain/langgraph";
-import { Runnable, RunnableConfig, RunnableLambda } from "@langchain/core/runnables";
+import {  RunnableConfig } from "@langchain/core/runnables";
 import { StateGraph } from "@langchain/langgraph";
 import { publishStoreMssg } from "./pubsubPublisher.js";
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
 import { ToolNode, toolsCondition } from "@langchain/langgraph/prebuilt"
 import { retrieverTool } from "./tools/retriever.js";
-import { AgentExecutor, createOpenAIToolsAgent } from "langchain/agents";
-import { JsonOutputToolsParser } from "langchain/output_parsers";
-
-
-import { IterableReadableStream } from "@langchain/core/utils/stream";
+import { ChatGenerationChunk } from "@langchain/core/outputs";
+import { TicketEscalatorTool } from "./tools/ticketescalator.js";
 
 export const chatModel = new ChatOpenAI(
   {
@@ -26,17 +22,12 @@ export const chatModel = new ChatOpenAI(
   }
 );
 export interface IState {
-  messages: BaseMessage[];
-  shopInfo: string
+  messages: BaseMessage[]
 }
 const graphState: StateGraphArgs<IState>["channels"] = {
   messages: {
     value: (x: BaseMessage[], y: BaseMessage[]) => x.concat(y),
     default: () => [],
-  },
-  shopInfo: {
-    value: (x?: string, y?: string) => y ?? x ?? "",
-    default: () => "",
   },
 };
 
@@ -45,94 +36,107 @@ You are a helpful customer support assistant for a brand called {shopDomain}.
 Use the provided tools to search for the information regarding the company to solve the user's query.
 If user is not satisfied then ask for more informaation from user to answer their query.
 Even then if unable to answer ask user if you can escalate ticket to a human operator.
-If User agrees then use the escalation tool to escalate the ticket. 
+If User agrees then use the escalation tool to escalate the ticket.
+
 `
 const prompt = ChatPromptTemplate.fromMessages([
   ["system", assistantPrompt],
   new MessagesPlaceholder("messages")
 ])
-const temp = prompt.pipe(chatModel.bindTools([retrieverTool]))
+const temp = prompt.pipe(chatModel.bindTools([retrieverTool, TicketEscalatorTool]))
 async function agent(state: IState, config?: RunnableConfig,) {
   const { messages } = state;
-  // console.log("messages")
-  // console.log(messages)
-  // console.log("shopDomain")
-  // console.log(config?.configurable?.shopDomain)
   const shopDomain = config?.configurable?.shopDomain
   const response = await temp.invoke({ messages: messages, shopDomain: shopDomain }, config);
-  // console.log("response")
-  // console.log(response)
-
   return { messages: [response] };
 };
 
-
-async function fetchInfo(state: IState, config: RunnableConfig) {
-
-  console.log("---------Fetching Info------------------")
-  return { shopInfo: config?.configurable?.shopDomain }
-}
 
 const workflow = new StateGraph<IState, unknown, string>({
   channels: graphState,
 })
 
-  .addNode("fetch_info", fetchInfo)
   .addNode("agent", agent)
-  .addNode("tools", new ToolNode([retrieverTool]))
-  .addConditionalEdges("agent", toolsCondition)
-  .addEdge("tools", "agent")
-  .addEdge("fetch_info", "agent")
+  .addNode("safeTools", new ToolNode([retrieverTool]))
+  .addNode("sensitiveTools", new ToolNode([TicketEscalatorTool]))
+  .addConditionalEdges("agent", routeTools)
+  .addEdge("safeTools", "agent")
+  .addEdge("sensitiveTools", "agent")
 
 
-workflow.addEdge(START, "fetch_info");
-
-
-const app = workflow.compile();
-
-const memory = SqliteSaver.fromConnString(process.env.SQLITE_URL || "/home/ubuntu/sqlite/maindb.sqlite");
-const persistentGraph = workflow.compile({ checkpointer: memory });
-
-
-export async function replytriaal(ticketId: string, query: string, shopDomain: string, io: any, roomName: string) {
-  // await publishStoreMssg(ticketId, "user", query);
-  let config = { configurable: { thread_id: ticketId, shopDomain: shopDomain } };
-  const inputs = { messages: new HumanMessage(query) };
-  // const events: IterableReadableStream<any> = await persistentGraph.stream(inputs, { ...config, streamMode: "values" })
-  for await (
-    const { messages } of await persistentGraph.stream(inputs, {
-      ...config,
-      streamMode: "values",
-    })
-  ) {
-    const msg = messages[messages.length - 1];
-    if (msg?.content) {
-      io.in(roomName).emit('receiveMessage', { sender: 'bot', message: msg.content });
-    }
-    else if (msg?.tool_calls.length > 0) {
-      console.log(msg)
-    }
-    else {
-      console.log("------------don't know what it is--------------")
-      console.log(msg)
-    }
+workflow.addEdge(START, "agent");
+type NextNode = 'safeTools' | 'sensitiveTools' | '__end__';
+function routeTools(state: IState): NextNode {
+  const next_node = toolsCondition(state);
+  // console.log(next_node)
+  if (next_node === '__end__') {
+    return '__end__';
   }
 
-  // for await (const {messages} of await persistentGraph.stream(inputs, { ...config, streamMode: "values", })) {
-  //   console.log("after execution messages")
-  //   console.log(messages)
-  //   let msg = messages[messages?.length - 1];
-  //   if (msg?.content) {
-  //     console.log(msg.content);
-  //     await publishStoreMssg(ticketId, "ai", msg.content);
-  //     return msg.content
-  //   } else if (msg?.tool_calls?.length > 0) {
-  //     console.log(msg.tool_calls);
-  //   } else {
-  //     console.log(msg);
-  //   }
-  //   console.log("-----\n");
-  // }
-  // return processStream(ticketId, inputs, config);
+  const ai_message = state.messages[state.messages.length - 1] as AIMessageChunk;
+  console.log(ai_message)
+  const first_tool_call = ai_message.tool_calls;
+  console.log(first_tool_call)
+  if (first_tool_call && first_tool_call[0].name === "TicketEscalatorTool") {
+    return 'sensitiveTools';
+  }
+  return 'safeTools';
+}
 
+
+const memory = SqliteSaver.fromConnString(process.env.SQLITE_URL || "/home/ubuntu/sqlite/maindb.sqlite");
+const persistentGraph = workflow.compile({ checkpointer: memory, interruptBefore: ["sensitiveTools"] });
+
+
+export async function replytriaal (ticketId: string, query: string, shopDomain: string, io: any, roomName: string, isContinue: boolean, email?: string) {
+  const output: { [key: string]: string } = {};
+  // await publishStoreMssg(ticketId, "user", query);
+  let config = { configurable: { thread_id: ticketId, shopDomain: trimMyShopifyDomain(shopDomain), io: io, roomName: roomName, userEmail: email } };
+  let inputs;
+  if (isContinue) {
+    inputs = null
+  }
+  else {
+    inputs = { messages: new HumanMessage(query) };
+  }
+  for await (
+    const event of await persistentGraph.streamEvents(inputs, {
+      ...config,
+      streamMode: "values",
+      version: "v1",
+    })
+  ) {
+
+    if (event.event === "on_llm_stream") {
+      let chunk: ChatGenerationChunk = event.data?.chunk;
+      let msg = chunk.message as AIMessageChunk
+      if (msg.id) {
+        const key: string = msg.id;
+        if (msg.content) {
+          output[key] += msg.content
+          // console.log(output)
+          io.in(roomName).emit('streamChunk', { id: key, message: output[key] })
+          // console.log(`msg : content : $e{msg.content}`);
+        }
+      }
+    }
+    else if (event.event === "on_llm_end") {
+      let msg = event.data;
+      // console.log(msg)
+
+    }
+  }
+  let snapshot = await persistentGraph.getState(config)
+  if (snapshot.next[0] === 'sensitiveTools') {
+    io.in(roomName).emit('showInput', { fields: ["email"] })
+  }
+
+}
+
+function trimMyShopifyDomain(inputString: string) {
+  const suffix = ".myshopify.com";
+  if (inputString.endsWith(suffix)) {
+    return inputString.slice(0, -suffix.length);
+  }
+  return inputString;
 }
