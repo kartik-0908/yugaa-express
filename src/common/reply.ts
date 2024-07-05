@@ -121,8 +121,8 @@ export async function replytriaal(ticketId: string, query: string, shopDomain: s
         const key: string = msg.id;
         if (msg.content != '') {
           // console.log(output[key])
-          console.log("content -----")
-          console.log(msg.content)
+          // console.log("content -----")
+          // console.log(msg.content)
           if(!output[msg.id]){
             output[msg.id] = "";
           }
