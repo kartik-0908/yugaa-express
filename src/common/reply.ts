@@ -1,10 +1,10 @@
 require('dotenv').config();
 import { ChatOpenAI } from "@langchain/openai";
-import { START } from "@langchain/langgraph";
+import { END, START } from "@langchain/langgraph";
 import { SqliteSaver } from "@langchain/langgraph/checkpoint/sqlite"
-import { AIMessageChunk, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import { AIMessage, AIMessageChunk, BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { StateGraphArgs } from "@langchain/langgraph";
-import {  RunnableConfig } from "@langchain/core/runnables";
+import { RunnableConfig } from "@langchain/core/runnables";
 import { StateGraph } from "@langchain/langgraph";
 import { publishStoreMssg } from "./pubsubPublisher.js";
 import { ChatPromptTemplate, MessagesPlaceholder } from "@langchain/core/prompts";
@@ -38,19 +38,24 @@ If user is not satisfied then ask for more informaation from user to answer thei
 Even then if unable to answer ask user if you can escalate ticket to a human operator.
 If User agrees then use the escalation tool to escalate the ticket.
 
+Insert '\n' at the end of each line of response
+
+You are not allowed to discuss anything not related to brand.
+
 `
 const prompt = ChatPromptTemplate.fromMessages([
   ["system", assistantPrompt],
   new MessagesPlaceholder("messages")
 ])
+
 const temp = prompt.pipe(chatModel.bindTools([retrieverTool, TicketEscalatorTool]))
 async function agent(state: IState, config?: RunnableConfig,) {
   const { messages } = state;
   const shopDomain = config?.configurable?.shopDomain
   const response = await temp.invoke({ messages: messages, shopDomain: shopDomain }, config);
+  // console.log(response)
   return { messages: [response] };
 };
-
 
 const workflow = new StateGraph<IState, unknown, string>({
   channels: graphState,
@@ -68,15 +73,15 @@ workflow.addEdge(START, "agent");
 type NextNode = 'safeTools' | 'sensitiveTools' | '__end__';
 function routeTools(state: IState): NextNode {
   const next_node = toolsCondition(state);
+  // console.log(state)
   // console.log(next_node)
   if (next_node === '__end__') {
-    return '__end__';
+    return END;
   }
-
-  const ai_message = state.messages[state.messages.length - 1] as AIMessageChunk;
-  console.log(ai_message)
+  const ai_message = state.messages[state.messages.length - 1] as AIMessage;
+  // console.log(ai_message)
   const first_tool_call = ai_message.tool_calls;
-  console.log(first_tool_call)
+  // console.log(first_tool_call)
   if (first_tool_call && first_tool_call[0].name === "TicketEscalatorTool") {
     return 'sensitiveTools';
   }
@@ -88,8 +93,8 @@ const memory = SqliteSaver.fromConnString(process.env.SQLITE_URL || "/home/ubunt
 const persistentGraph = workflow.compile({ checkpointer: memory, interruptBefore: ["sensitiveTools"] });
 
 
-export async function replytriaal (ticketId: string, query: string, shopDomain: string, io: any, roomName: string, isContinue: boolean, email?: string) {
-  const output: { [key: string]: string } = {};
+export async function replytriaal(ticketId: string, query: string, shopDomain: string, io: any, roomName: string, isContinue: boolean, email?: string) {
+  let output: { [key: string]: string } = {};
   // await publishStoreMssg(ticketId, "user", query);
   let config = { configurable: { thread_id: ticketId, shopDomain: trimMyShopifyDomain(shopDomain), io: io, roomName: roomName, userEmail: email } };
   let inputs;
@@ -112,10 +117,16 @@ export async function replytriaal (ticketId: string, query: string, shopDomain: 
       let msg = chunk.message as AIMessageChunk
       if (msg.id) {
         const key: string = msg.id;
-        if (msg.content) {
-          output[key] += msg.content
-          // console.log(output)
-          io.in(roomName).emit('streamChunk', { id: key, message: output[key] })
+        if (msg.content != '') {
+          // console.log(output[key])
+          console.log("content -----")
+          console.log(msg.content)
+          if(!output[msg.id]){
+            output[msg.id] = "";
+          }
+          output[msg.id]+=msg.content
+
+          io.in(roomName).emit('streamChunk', { id: msg.id, message: output[msg.id] })
           // console.log(`msg : content : $e{msg.content}`);
         }
       }
