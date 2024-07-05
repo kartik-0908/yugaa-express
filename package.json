@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
-    "dev": "npx tsc -b && node dist/index.js"
+    "dev": "npx tsc -b && node dist/index.js",
+    "pull": "git pull origin main && npx prisma generate && npx tsc -b"
   },
   "keywords": [],
   "author": "",
