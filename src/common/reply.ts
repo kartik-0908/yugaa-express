@@ -54,7 +54,7 @@ async function agent(state: IState, config?: RunnableConfig,) {
   const shopDomain = config?.configurable?.shopDomain
   const response = await temp.invoke({ messages: messages, shopDomain: shopDomain }, config);
   // console.log(response)
-  await publishStoreMssg(config?.configurable?.thread_id, "ai", response.content as string);
+  await publishStoreMssg(config?.configurable?.thread_id, "ai", response.content as string, new Date());
 
   return { messages: [response] };
 };
@@ -97,7 +97,7 @@ const persistentGraph = workflow.compile({ checkpointer: memory, interruptBefore
 
 export async function replytriaal(ticketId: string, query: string, shopDomain: string, io: any, roomName: string, isContinue: boolean, email?: string) {
   let output: { [key: string]: string } = {};
-  await publishStoreMssg(ticketId, "user", query);
+  await publishStoreMssg(ticketId, "user", query, new Date());
   let config = { configurable: { thread_id: ticketId, shopDomain: trimMyShopifyDomain(shopDomain), io: io, roomName: roomName, userEmail: email } };
   let inputs;
   if (isContinue) {

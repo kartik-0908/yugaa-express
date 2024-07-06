@@ -110,7 +110,7 @@ io.on('connection', (socket) => {
         socket.emit('previousMessages', { prevMessages: formattedMessages });
     });
     socket.on('create-ticket', async (data) => {
-        const { ticketId } = data;
+        const { ticketId, shopDomain } = data;
         console.log(`Createing ticket ID: ${ticketId}`);
         const resp = await db.aIConversationTicket.findUnique({
             where: {

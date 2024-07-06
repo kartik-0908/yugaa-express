@@ -1,5 +1,6 @@
 model AIConversationTicket {
   id                String              @id @default(uuid())
+  shopDomain        String              @default("default")
   status            String?
   messages          Message[]
   createdAt         DateTime            @default(now())

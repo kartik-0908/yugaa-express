@@ -54,12 +54,13 @@ export async function updateProductwithID(shopDomain: string, id: string, type: 
     }
 }
 
-export async function publishStoreMssg(ticketId: string, sender: string, message: string) {
+export async function publishStoreMssg(ticketId: string, sender: string, message: string, timestamp: Date) {
     const topicName = 'store-mssg';
     const dataBuffer = Buffer.from(JSON.stringify({
         ticketId,
         sender,
-        message
+        message,
+        timestamp
     }));
     try {
         const messageId = await pubSubClient.topic(topicName).publishMessage({ data: dataBuffer });

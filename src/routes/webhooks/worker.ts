@@ -161,13 +161,14 @@ router.post('/save-webhook', async function (req, res) {
 );
 
 router.post('/save-mssg', async function (req, res) {
-    const { ticketId, sender, message } = req.body;
+    const { ticketId, sender, message, timestamp } = req.body;
     try {
         await db.message.create({
             data: {
                 ticketId,
                 sender,
-                message
+                message,
+                createdAt: timestamp
             }
         })
         res.status(200).json({
@@ -175,6 +176,7 @@ router.post('/save-mssg', async function (req, res) {
             message: 'Webhook received',
         });
     } catch (err) {
+        console.log(err)
         res.status(400).json({
             success: false,
             message: (err as Error).message,
