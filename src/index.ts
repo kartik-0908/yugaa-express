@@ -120,7 +120,8 @@ io.on('connection', (socket) => {
         if (!resp) {
             await db.aIConversationTicket.create({
                 data: {
-                    id: ticketId
+                    id: ticketId,
+                    shopDomain: shopDomain
                 }
             })
         }
