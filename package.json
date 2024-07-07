@@ -17,6 +17,7 @@
     "@clerk/clerk-sdk-node": "^5.0.11",
     "@google-cloud/dns": "^4.0.0",
     "@google-cloud/pubsub": "^4.5.0",
+    "@google-cloud/storage": "^7.11.2",
     "@langchain/anthropic": "^0.1.17",
     "@langchain/community": "^0.2.13",
     "@langchain/core": "^0.2.10",

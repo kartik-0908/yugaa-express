@@ -1,8 +1,11 @@
 import { Router } from 'express';
 import { db } from '../../common/db';
-import { start } from 'repl';
 const express = require('express');
 const router = Router();
+const multer = require('multer');
+const upload = multer({
+    storage: multer.memoryStorage(),
+});
 
 router.use(express.json())
 router.post('/verify', async (req, res) => {
@@ -378,6 +381,159 @@ router.post('/transfer-rate', async (req, res) => {
         })
     }
 })
+
+router.post('/customizations', async (req, res) => {
+    console.log("fetching customizations")
+    const { shopDomain } = req.body
+    console.log(shopDomain)
+    try {
+
+        const settings = await db.chatbotCustomization.findUnique({
+            where: {
+                shopDomain: shopDomain
+            }
+        })
+        res.json({
+            settings
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
+
+router.post('/customizations', async (req, res) => {
+    console.log("fetching customizations")
+    const { shopDomain } = req.body
+    console.log(shopDomain)
+    try {
+
+        const settings = await db.chatbotCustomization.findUnique({
+            where: {
+                shopDomain: shopDomain
+            }
+        })
+        res.json({
+            settings
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
+router.post('/appearance', async (req, res) => {
+    console.log("fetching customizations")
+    const { shopDomain, selectedColor, botName, fontFamily, fontColor, widgetPosition } = req.body
+    console.log(shopDomain)
+    try {
+        await db.chatbotCustomization.update({
+            where: {
+                shopDomain: shopDomain
+            },
+            data: {
+                selectedColor,
+                botName,
+                fontFamily,
+                fontColor,
+                widgetPosition
+            }
+        })
+        res.json({
+            "message": "success"
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
+router.post('/appearance/logo', async (req, res) => {
+    console.log("fetching customizations")
+    const { shopDomain, logourl, filename } = req.body
+    console.log(shopDomain)
+    try {
+        await db.chatbotCustomization.update({
+            where: {
+                shopDomain: shopDomain
+            },
+            data: {
+                logo: logourl,
+                logoFilename: filename
+            }
+        })
+        res.json({
+            "message": "success"
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
+
+router.post('/language', async (req, res) => {
+    console.log("fetching customizations")
+    const { shopDomain, toneAndStyle, positiveReinforcement, errorHandling, politeness, clarityAndSimplicity, personalization } = req.body
+    console.log(shopDomain)
+    try {
+        await db.chatbotCustomization.update({
+            where: {
+                shopDomain: shopDomain
+            },
+            data: {
+                toneAndStyle,
+                positiveReinforcement,
+                errorHandling,
+                politeness,
+                clarityAndSimplicity,
+                personalization
+            }
+        })
+        res.json({
+            "message": "success"
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
+
+router.post('/behaviour', async (req, res) => {
+    console.log("fetching customizations")
+    const { shopDomain, responseLength, clarificationPrompt, apologyAndRetryAttempt, errorMessageStyle, greetingmessage } = req.body
+    console.log(shopDomain)
+    try {
+        await db.chatbotCustomization.update({
+            where: {
+                shopDomain: shopDomain
+            },
+            data: {
+                responseLength,
+                clarificationPrompt,
+                apologyAndRetryAttempt,
+                errorMessageStyle,
+                greetingMessage: greetingmessage
+            }
+        })
+        res.json({
+            "message": "success"
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
+
 
 
 module.exports = router;
