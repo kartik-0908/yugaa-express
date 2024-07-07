@@ -118,6 +118,7 @@ io.on('connection', (socket) => {
             }
         })
         if (!resp) {
+            console.log(`ticket creatinh withh ${ticketId} for ${shopDomain}`)
             await db.aIConversationTicket.create({
                 data: {
                     id: ticketId,
