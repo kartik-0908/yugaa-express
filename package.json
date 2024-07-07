@@ -7,14 +7,13 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
     "dev": "npx tsc -b && node dist/index.js",
-    "pull": "git pull origin main && npx prisma generate && npx tsc -b"
+    "deploy": "git pull origin main && npm install && npx prisma generate && npx tsc -b"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.596.0",
-    "@aws-sdk/client-sqs": "^3.596.0",
     "@clerk/clerk-sdk-node": "^5.0.11",
     "@google-cloud/dns": "^4.0.0",
     "@google-cloud/pubsub": "^4.5.0",

@@ -15,4 +15,5 @@ model Message {
   sender               String
   message              String
   createdAt            DateTime             @default(now())
+  unanswered           Boolean              @default(false)
 }
