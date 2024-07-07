@@ -111,6 +111,7 @@ io.on('connection', (socket) => {
     });
     socket.on('create-ticket', async (data) => {
         const { ticketId, shopDomain } = data;
+        console.log(data)
         console.log(`Createing ticket ID: ${ticketId}`);
         const resp = await db.aIConversationTicket.findUnique({
             where: {
