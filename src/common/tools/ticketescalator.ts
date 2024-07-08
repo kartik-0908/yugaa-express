@@ -34,7 +34,7 @@ export const TicketEscalatorTool = tool(
                 await tx.aIEscalatedTicketEvent.create({
                     data: {
                         aiEscalatedTicketId: newTicket.id,
-                        eventType: 'create',
+                        eventType: 'created',
                         newStatus: newTicket.status, // Assuming the status is set to a default value
                     },
                 });
