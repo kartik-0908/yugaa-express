@@ -1,6 +1,7 @@
 import { tool } from "@langchain/core/tools";
 import { z } from "zod";
 import { publishTicketEscalate } from "../pubsubPublisher";
+import { db } from "../db";
 const escalatorSchema = z.object({
     shopDomain: z.string(),
 });
@@ -11,7 +12,32 @@ export const TicketEscalatorTool = tool(
         const userEmail = config?.configurable.userEmail
         const aiConversationTicketId = config?.configurable.thread_id
         try {
-            await publishTicketEscalate(aiConversationTicketId, shop, userEmail )
+            await db.$transaction(async (tx) => {
+                // Count existing tickets for the given shopDomain
+                const ticketCount = await tx.aIEscalatedTicket.count({
+                    where: { shopDomain: shop },
+                });
+
+                // Generate the new unique ID
+                const newId = `${input.shopDomain}-${ticketCount + 1}`;
+
+                // Create the new ticket
+                const newTicket = await tx.aIEscalatedTicket.create({
+                    data: {
+                        id: newId,
+                        shopDomain: shop,
+                        customerEmail: userEmail,
+                        aiConversationTicketId,
+                    },
+                });
+
+                return newTicket;
+            }, {
+                // Set a timeout for the transaction (adjust as needed)
+                timeout: 10000, // 10 seconds
+                // Use serializable isolation level for strongest consistency
+                isolationLevel: 'Serializable',
+            });
             return `Ticket escalated and will be responded to given email Id`
 
         } catch (error) {

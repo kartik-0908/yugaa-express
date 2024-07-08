@@ -534,6 +534,97 @@ router.post('/behaviour', async (req, res) => {
     }
 })
 
+router.post('/chat', async (req, res) => {
+    console.log("fetching chat list")
+    const { shopDomain, offset, count } = req.body
+    console.log(shopDomain)
+    try {
+        const retcount = await db.aIConversationTicket.count({
+            where: {
+                shopDomain: shopDomain,
+            },
+        });
+        const tickets = await db.aIConversationTicket.findMany({
+            skip: offset,
+            take: count,
+            where: {
+                shopDomain: shopDomain
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+            select: {
+                id: true,
+                messages: {
+                    orderBy: {
+                        createdAt: 'desc',
+                    },
+                    take: 1,
+                    select: {
+                        id: true,
+                        sender: true,
+                        message: true,
+                        createdAt: true,
+                        unanswered: true,
+                    },
+                },
+            },
+        });
+        res.json({
+            retcount, tickets
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
 
+router.post('/completeChat', async (req, res) => {
+    console.log("fetching chat list")
+    const { id, } = req.body
+    try {
+        const ticket = await db.aIConversationTicket.findUnique({
+            where: {
+                id: id
+            },
+            include: {
+                messages: true
+            }
+        })
+        res.json({
+            ticket
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
+
+router.post('/feature-request', async (req, res) => {
+    const { shortdesc, message, category, shopDomain } = req.body
+    console.log(req.body)
+    try {
+        await db.featureRequest.create({
+            data: {
+                shop: shopDomain,
+                description: shortdesc,
+                details: message,
+                category: category
+            }
+        })
+
+        res.json({
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
 
 module.exports = router;
