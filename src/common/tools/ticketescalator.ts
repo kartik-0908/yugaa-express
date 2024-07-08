@@ -8,7 +8,7 @@ const escalatorSchema = z.object({
 export const TicketEscalatorTool = tool(
     async (input: { shopDomain: string }, config): Promise<any> => {
         console.log(input.shopDomain)
-        const shop = input.shopDomain += ".myshopify.com"
+        const shop = input.shopDomain + ".myshopify.com"
         const userEmail = config?.configurable.userEmail
         const aiConversationTicketId = config?.configurable.thread_id
         try {
