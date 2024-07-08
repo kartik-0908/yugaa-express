@@ -71,7 +71,7 @@ export async function publishStoreMssg(ticketId: string, sender: string, message
 }
 
 export async function publishTicketEscalate(ticketId: string, shopDomain: string, userEmail: string) {
-    const topicName = 'ticketEscalate';
+    const topicName = 'escalate-ticket';
     const dataBuffer = Buffer.from(JSON.stringify({
         ticketId,
         shopDomain,
