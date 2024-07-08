@@ -5,6 +5,7 @@ model AIEscalatedTicket {
     aiConversationTicketId String
     aiConversationTicket   AIConversationTicket     @relation(fields: [aiConversationTicketId], references: [id])
     status                 String                   @default("unassigned")
+    subject                String                   @default("Subject")
     priority               String?
     category               String?
     events                 AIEscalatedTicketEvent[]

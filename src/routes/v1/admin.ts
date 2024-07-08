@@ -626,5 +626,40 @@ router.post('/feature-request', async (req, res) => {
         })
     }
 })
+router.post('/getEscwithStatus', async (req, res) => {
+    console.log("fetching chat list")
+    const { shopDomain, offset, count, status } = req.body
+    console.log(shopDomain)
+    try {
+        const retcount = await db.aIEscalatedTicket.count({
+            where: {
+                shopDomain: shopDomain,
+                status: status
+            },
+        });
+        const tickets = await db.aIEscalatedTicket.findMany({
+            skip: offset,
+            take: count,
+            where: {
+                shopDomain: shopDomain
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+            select: {
+                id: true,
+                aiConversationTicketId: true
+            },
+        });
+        res.json({
+            retcount, tickets
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
 
 module.exports = router;
