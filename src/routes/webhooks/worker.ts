@@ -98,7 +98,7 @@ router.post('/initialize/email', async function (req, res) {
     const shop = trimShopifyDomain(shopDomain)
 
     try {
-        const newEmail = `${shop}@yugaa.tech`;
+        const newEmail = `${shop}@helpdeskyugaa.tech`;
         const shopData = await db.shopifyInstalledShop.findUnique({
             where: {
                 shop: shopDomain
@@ -185,7 +185,7 @@ router.post('/save-mssg', async function (req, res) {
 })
 
 router.post('/escalate-ticket', async function (req, res) {
-    const { ticketId, shopDomain, userEmail } = req.body;
+    const { ticketId, shopDomain, userEmail, subject } = req.body;
     const shop = trimShopifyDomain(shopDomain)
     try {
         await db.$transaction(async (prisma) => {
@@ -196,13 +196,20 @@ router.post('/escalate-ticket', async function (req, res) {
                 },
             });
             const newTicketId = `${shop}-${ticketCount + 1}`;
-            const ticketId = newTicketId
-            await prisma.aIEscalatedTicket.create({
+            const newTicket = await prisma.aIEscalatedTicket.create({
                 data: {
                     id: newTicketId,
                     shopDomain: shopDomain,
                     customerEmail: userEmail,
                     aiConversationTicketId: ticketId,
+                    subject: subject
+                },
+            });
+            await prisma.aIEscalatedTicketEvent.create({
+                data: {
+                    aiEscalatedTicketId: newTicket.id,
+                    type: 'CREATED',
+                    newStatus: newTicket.status, // Assuming the status is set to a default value
                 },
             });
             await prisma.$executeRaw`SELECT pg_advisory_xact_lock(1);`;

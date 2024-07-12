@@ -32,6 +32,7 @@ model ShopifyInstalledShop {
   email            String[]
   adminInviteCode  String   @default(uuid())
   memberInviteCode String   @default(uuid())
+  autoAssignment   Boolean  @default(true)
 }
 
 model Customer {

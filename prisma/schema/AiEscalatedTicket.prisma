@@ -17,7 +17,7 @@ model AIEscalatedTicketEvent {
     id                  String            @id @default(uuid())
     aiEscalatedTicketId String
     aiEscalatedTicket   AIEscalatedTicket @relation(fields: [aiEscalatedTicketId], references: [id])
-    eventType           String
+    type                EventType
     changedBy           String?
     oldStatus           String?
     newStatus           String?
@@ -31,17 +31,22 @@ model AIEscalatedTicketEvent {
 }
 
 model Email {
-    id     String                   @id @default(uuid())
-    events AIEscalatedTicketEvent[]
+    id        String                   @id @default(uuid())
+    text      String
+    subject   String
+    from      String
+    to        String
+    createdAt DateTime                 @default(now())
+    events    AIEscalatedTicketEvent[]
 }
 
-//events type
-
-// Ticket Assigned()
-// Ticket Status Changed
-// Ticket Priority Changed
-// Ticket Category Changed
-// Ticket Reopened
-// ticket created 
-// user replied 
-// member replied
+enum EventType {
+    EMAIL_RECEIVED
+    EMAIL_SENT
+    STATUS_CHANGED
+    PRIORITY_CHANGED
+    CATEGORY_CHANGED
+    ASSIGNED
+    REOPENED
+    CREATED
+}

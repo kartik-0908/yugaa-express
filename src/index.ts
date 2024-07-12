@@ -5,26 +5,17 @@ require('dotenv').config();
 const app = express();
 const v1router = require("./routes/v1/routes")
 const webhookRouter = require("./routes/webhooks/routes")
-import { MongoDBAtlasVectorSearch } from "@langchain/mongodb";
-import { publishShopifyStoreProcessData } from './common/pubsubPublisher';
 import { getPreviousMessages } from './common/user';
 import { db } from './common/db';
 import { replytriaal } from './common/reply.js';
-// const emailRouter = require("./routes/email")
 var cors = require('cors')
 app.use(cors())
 app.use('/webhooks', webhookRouter)
-// app.use('/email', emailRouter)
 app.use('/v1', v1router);
 
 
 app.get('/', async (req, res) => {
-    // await publishShopifyStoreProcessData("may15ka.myshopify.com")
-    // await replytriaal();
     console.log("inside api root")
-    console.log(process.env.AZURE_OPENAI_API_KEY)
-
-    // await sendInitialEmail()
     try {
         res.json({
             "message": "status ok"

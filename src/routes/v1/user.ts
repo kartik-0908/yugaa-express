@@ -50,7 +50,21 @@ router.get('/get-role', async (req, res) => {
     console.log(invitedUser?.role)
     return res.json({ role: invitedUser?.role });
 });
-
+router.post('/getRoleDomain', async (req, res) => {
+    const { userId } = req.body
+    console.log(userId)
+    try {
+        const user = await db.user.findUnique({
+            where: { id: userId },
+        });
+        return res.json({ role: user?.role, shopDomain: user?.shopDomain });
+    } catch (error) {
+        console.log(error)
+        res.json({
+            "message": "error",
+        })
+    }
+});
 router.post('/get-members', async (req, res) => {
     const { body } = req
     const { shopDomain } = body

@@ -23,9 +23,9 @@ router.post('/access-token', async (req, res) => {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
         });
-        const {data} = response
+        const { data } = response
         console.log(data)
-        const accessToken  = data.access_token;
+        const accessToken = data.access_token;
         const existingShop = await db.shopifyInstalledShop.findUnique({
             where: {
                 shop: shop,
@@ -69,5 +69,29 @@ router.post('/get-members', async (req, res) => {
     })
     return;
 })
+
+router.post('/getEmail', async (req, res) => {
+    const { body } = req
+    const { shopDomain } = body
+    try {
+        const resp = await db.shopifyInstalledShop.findUnique({
+            where: {
+                shop: shopDomain,
+            },
+        });
+
+        const emails = resp?.email
+        res.json({
+            emails
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            "message": "Internal server error",
+        })
+    }
+    return;
+})
+
 
 module.exports = router;
