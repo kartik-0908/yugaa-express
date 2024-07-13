@@ -35,6 +35,7 @@ router.use(bodyParser.raw({ type: 'application/json' }))
 
 router.post('/', async function (req, res) {
     try {
+        console.log(req.body)
         const payloadString = req.body.toString();
         const svixHeaders = req.headers;
         // console.log(process.env.CLERK_WEBHOOK_SECRET_KEY)
