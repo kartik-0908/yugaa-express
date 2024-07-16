@@ -1,25 +1,26 @@
 model Notification {
-    id                   String    @id @default(uuid())
-    title                String
-    role                 String
-    content              String
-    eventType            String
-    recipientId          String
-    isRead               Boolean   @default(false)
-    createdAt            DateTime  @default(now())
-    ticketId             String?
-    operatorName         String?
-    newAssignee          String?
-    changedBy            String?
-    newPriority          String?
-    newStatus            String?
-    maintenanceDate      DateTime?
-    maintenanceStartTime DateTime?
-    maintenanceEndTime   DateTime?
-    newTicketsCount      Int?
-    resolvedTicketsCount Int?
+  id                   String    @id @default(uuid())
+  userId               String?
+  title                String
+  role                 String
+  content              String
+  eventType            String
+  recipientId          String
+  isRead               Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  ticketId             String?
+  operatorName         String?
+  newAssignee          String?
+  changedBy            String?
+  newPriority          String?
+  newStatus            String?
+  maintenanceDate      DateTime?
+  maintenanceStartTime DateTime?
+  maintenanceEndTime   DateTime?
+  newTicketsCount      Int?
+  resolvedTicketsCount Int?
 
-    @@index([recipientId])
-    @@index([isRead])
-    @@index([createdAt])
+  @@index([recipientId])
+  @@index([isRead])
+  @@index([createdAt])
 }

@@ -85,21 +85,22 @@ router.post('/settings', async (req, res) => {
     }
 })
 
-router.post('/ai-tickets', async (req, res) => {
-    console.log("fetching for home peqk inetaqrction time")
-    const { startTime } = req.body
-    const { endTime } = req.body
-    const { shopDomain } = req.body
-    // console.log(startTime)
-    // console.log(endTime)
-    // console.log(shopDomain)
+router.get('/ai-tickets', async (req, res) => {
+    console.log("fetching for home peak interaction time")
+    const { shop, start, end } = req.query
+    console.log(req.query)
+
+    if (typeof shop !== 'string' || typeof start !== 'string' || typeof end !== 'string') {
+        return res.status(400).json({ message: "Invalid query parameters" });
+    }
+
     try {
         const tickets = await db.aIConversationTicket.findMany({
             where: {
-                shopDomain: shopDomain,
+                shopDomain: shop || "",
                 createdAt: {
-                    gte: startTime,
-                    lte: endTime,
+                    gte: new Date(start),
+                    lte: new Date(end),
                 },
             },
             select: {
@@ -110,10 +111,8 @@ router.post('/ai-tickets', async (req, res) => {
                 createdAt: 'asc',
             },
         })
-        // console.log(tickets)
-        res.json({
-            tickets
-        })
+
+        res.json({ tickets })
     } catch (error) {
         console.log(error)
         res.status(404).json({
@@ -122,21 +121,24 @@ router.post('/ai-tickets', async (req, res) => {
     }
 })
 
-router.post('/total-interaction', async (req, res) => {
-    console.log("fetching for home total interaction time")
-    const { startTime } = req.body
-    const { endTime } = req.body
-    const { shopDomain } = req.body
+router.get('/total-interaction', async (req, res) => {
+    console.log("fetching for total interaction time")
+    const { shop, start, end } = req.query
+    console.log(req.query)
+
+    if (typeof shop !== 'string' || typeof start !== 'string' || typeof end !== 'string') {
+        return res.status(400).json({ message: "Invalid query parameters" });
+    }
     // console.log(startTime)
     // console.log(endTime)
     // console.log(shopDomain)
     try {
         const tickets = await db.aIConversationTicket.findMany({
             where: {
-                shopDomain: shopDomain,
+                shopDomain: shop,
                 createdAt: {
-                    gte: startTime,
-                    lte: endTime,
+                    gte: start,
+                    lte: end,
                 },
             },
             select: {
@@ -194,23 +196,25 @@ router.post('/recent-chats', async (req, res) => {
     }
 })
 
-router.post('/unanswered', async (req, res) => {
-    console.log("fetching for unanswered messages")
-    const { shopDomain } = req.body
-    const { startTime } = req.body
-    const { endTime } = req.body
-    console.log(shopDomain)
+router.get('/unanswered', async (req, res) => {
+    console.log("fetching for answered messages")
+    const { shop, start, end } = req.query
+    console.log(req.query)
+
+    if (typeof shop !== 'string' || typeof start !== 'string' || typeof end !== 'string') {
+        return res.status(400).json({ message: "Invalid query parameters" });
+    }
     try {
         const count = await db.message.count({
             where: {
                 unanswered: true,
                 createdAt: {
-                    gte: startTime,
-                    lte: endTime
+                    gte: start,
+                    lte: end
                 },
                 sender: 'ai',
                 aiconversationticket: {
-                    shopDomain: shopDomain
+                    shopDomain: shop
                 }
             },
 
@@ -225,23 +229,25 @@ router.post('/unanswered', async (req, res) => {
         })
     }
 })
-router.post('/answered', async (req, res) => {
-    console.log("fetching for unanswered messages")
-    const { shopDomain } = req.body
-    const { startTime } = req.body
-    const { endTime } = req.body
-    console.log(shopDomain)
+router.get('/answered', async (req, res) => {
+    console.log("fetching for answered messages")
+    const { shop, start, end } = req.query
+    console.log(req.query)
+
+    if (typeof shop !== 'string' || typeof start !== 'string' || typeof end !== 'string') {
+        return res.status(400).json({ message: "Invalid query parameters" });
+    }
     try {
         const count = await db.message.count({
             where: {
                 unanswered: false,
                 createdAt: {
-                    gte: startTime,
-                    lte: endTime
+                    gte: start,
+                    lte: end
                 },
                 sender: 'ai',
                 aiconversationticket: {
-                    shopDomain: shopDomain
+                    shopDomain: shop
                 }
             },
 
@@ -257,21 +263,21 @@ router.post('/answered', async (req, res) => {
     }
 })
 
-router.post('/count-ai-tickets', async (req, res) => {
+router.get('/count-ai-tickets', async (req, res) => {
     console.log("fetching for analytics total tickets")
-    const { startTime } = req.body
-    const { endTime } = req.body
-    const { shopDomain } = req.body
-    console.log(startTime)
-    console.log(endTime)
-    console.log(shopDomain)
+    const { shop, start, end } = req.query
+    console.log(req.query)
+
+    if (typeof shop !== 'string' || typeof start !== 'string' || typeof end !== 'string') {
+        return res.status(400).json({ message: "Invalid query parameters" });
+    }
     try {
         const count = await db.aIConversationTicket.count({
             where: {
-                shopDomain: shopDomain,
+                shopDomain: shop,
                 createdAt: {
-                    gte: startTime,
-                    lte: endTime,
+                    gte: start,
+                    lte: end,
                 },
             },
         })
@@ -287,21 +293,21 @@ router.post('/count-ai-tickets', async (req, res) => {
     }
 })
 
-router.post('/avg-session', async (req, res) => {
+router.get('/avg-session', async (req, res) => {
     console.log("fetching for analytics total tickets")
-    const { startTime } = req.body
-    const { endTime } = req.body
-    const { shopDomain } = req.body
-    console.log(startTime)
-    console.log(endTime)
-    console.log(shopDomain)
+    const { shop, start, end } = req.query
+    console.log(req.query)
+
+    if (typeof shop !== 'string' || typeof start !== 'string' || typeof end !== 'string') {
+        return res.status(400).json({ message: "Invalid query parameters" });
+    }
     try {
         const tickets = await db.aIConversationTicket.findMany({
             where: {
-                shopDomain: shopDomain,
+                shopDomain: shop,
                 createdAt: {
-                    gte: startTime,
-                    lte: endTime,
+                    gte: start,
+                    lte: end,
                 },
             },
             include: {
@@ -707,10 +713,10 @@ router.post('/getEscTicketEvents', async (req, res) => {
             orderBy: {
                 createdAt: 'asc',
             },
-            include:{
+            include: {
                 email: true,
             }
-            
+
         });
         // console.log(events)
         res.json({
@@ -724,5 +730,34 @@ router.post('/getEscTicketEvents', async (req, res) => {
     }
 })
 
+router.get('/getEscTicketEvents', async (req, res) => {
+    const { id } = req.query
+    if (typeof id !== 'string') {
+        return res.status(400).json({ message: "Invalid query parameters" });
+    }
+    console.log(id)
+    try {
+        const events = await db.aIEscalatedTicketEvent.findMany({
+            where: {
+                aiEscalatedTicketId: id
+            },
+            orderBy: {
+                createdAt: 'asc',
+            },
+            include: {
+                email: true,
+            }
 
+        });
+        // console.log(events)
+        res.json({
+            events
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(404).json({
+            "message": "Technical Error"
+        })
+    }
+})
 module.exports = router;

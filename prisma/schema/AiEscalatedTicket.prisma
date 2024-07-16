@@ -1,52 +1,55 @@
 model AIEscalatedTicket {
-    id                     String                   @id @default(uuid())
-    shopDomain             String
-    customerEmail          String
-    aiConversationTicketId String
-    aiConversationTicket   AIConversationTicket     @relation(fields: [aiConversationTicketId], references: [id])
-    status                 String                   @default("unassigned")
-    subject                String                   @default("Subject")
-    priority               String?
-    category               String?
-    events                 AIEscalatedTicketEvent[]
-    createdAt              DateTime                 @default(now())
-    updatedAt              DateTime                 @updatedAt
+  id                     String                   @id @default(uuid())
+  shopDomain             String
+  customerEmail          String
+  aiConversationTicketId String
+  status                 String                   @default("unassigned")
+  priority               String?
+  category               String?
+  createdAt              DateTime                 @default(now())
+  updatedAt              DateTime                 @updatedAt
+  subject                String                   @default("Subject")
+  fcr                    Boolean                  @default(false)
+  fcrBy                  String?
+  assignedTo             String?
+  aiConversationTicket   AIConversationTicket     @relation(fields: [aiConversationTicketId], references: [id])
+  events                 AIEscalatedTicketEvent[]
 }
 
 model AIEscalatedTicketEvent {
-    id                  String            @id @default(uuid())
-    aiEscalatedTicketId String
-    aiEscalatedTicket   AIEscalatedTicket @relation(fields: [aiEscalatedTicketId], references: [id])
-    type                EventType
-    changedBy           String?
-    oldStatus           String?
-    newStatus           String?
-    assignedTo          String?
-    assignedBy          String?
-    newPriority         String?
-    newCategory         String?
-    emailId             String? // New field to store email ID if applicable
-    email               Email?            @relation(fields: [emailId], references: [id])
-    createdAt           DateTime          @default(now())
+  id                  String            @id @default(uuid())
+  aiEscalatedTicketId String
+  changedBy           String?
+  oldStatus           String?
+  newStatus           String?
+  assignedTo          String?
+  assignedBy          String?
+  newPriority         String?
+  newCategory         String?
+  emailId             String?
+  createdAt           DateTime          @default(now())
+  type                EventType
+  aiEscalatedTicket   AIEscalatedTicket @relation(fields: [aiEscalatedTicketId], references: [id])
+  email               Email?            @relation(fields: [emailId], references: [id])
 }
 
 model Email {
-    id        String                   @id @default(uuid())
-    text      String
-    subject   String
-    from      String
-    to        String
-    createdAt DateTime                 @default(now())
-    events    AIEscalatedTicketEvent[]
+  id        String                   @id @default(uuid())
+  createdAt DateTime                 @default(now())
+  from      String
+  subject   String
+  text      String
+  to        String
+  events    AIEscalatedTicketEvent[]
 }
 
 enum EventType {
-    EMAIL_RECEIVED
-    EMAIL_SENT
-    STATUS_CHANGED
-    PRIORITY_CHANGED
-    CATEGORY_CHANGED
-    ASSIGNED
-    REOPENED
-    CREATED
+  EMAIL_RECEIVED
+  EMAIL_SENT
+  STATUS_CHANGED
+  PRIORITY_CHANGED
+  CATEGORY_CHANGED
+  ASSIGNED
+  REOPENED
+  CREATED
 }

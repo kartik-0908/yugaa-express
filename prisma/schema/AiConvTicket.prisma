@@ -2,18 +2,18 @@ model AIConversationTicket {
   id                String              @id @default(uuid())
   shopDomain        String              @default("default")
   status            String?
-  messages          Message[]
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @updatedAt
   AIEscalatedTicket AIEscalatedTicket[]
+  messages          Message[]
 }
 
 model Message {
   id                   String               @id @default(uuid())
-  ticketId             String
-  aiconversationticket AIConversationTicket @relation(fields: [ticketId], references: [id])
-  sender               String
-  message              String
   createdAt            DateTime             @default(now())
+  message              String
+  sender               String
+  ticketId             String
   unanswered           Boolean              @default(false)
+  aiconversationticket AIConversationTicket @relation(fields: [ticketId], references: [id])
 }

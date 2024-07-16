@@ -1,15 +1,17 @@
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  firstName     String?
-  lastName      String?
-  lastLoginAt   DateTime?
-  shopDomain    String?
-  emailVerified DateTime?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime? @updatedAt
-  role          String?
+  id                   String    @id @default(uuid())
+  email                String    @unique
+  firstName            String?
+  lastName             String?
+  lastLoginAt          DateTime?
+  shopDomain           String?
+  image                String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime? @updatedAt
+  role                 String?
+  emailVerified        DateTime?
+  currentActiveTickets Int       @default(0)
+  availableForDist     Boolean   @default(true)
 }
 
 model InvitedUser {
@@ -29,9 +31,9 @@ model ShopifyInstalledShop {
   id               String   @id @default(uuid())
   shop             String   @unique
   accessToken      String?
-  email            String[]
   adminInviteCode  String   @default(uuid())
   memberInviteCode String   @default(uuid())
+  email            String[]
   autoAssignment   Boolean  @default(true)
 }
 

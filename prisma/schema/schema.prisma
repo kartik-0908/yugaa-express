@@ -1,7 +1,7 @@
 generator client {
   provider        = "prisma-client-js"
-  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
   previewFeatures = ["prismaSchemaFolder"]
+  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -10,16 +10,15 @@ datasource db {
 }
 
 model PlanDetails {
-  shopifyDomain  String   @id
   planId         Int
   planStartDate  DateTime
   convleft       Int
   shopifyid      String   @default("nothing")
   eventTimestamp String   @default("default")
+  shopifyDomain  String   @id
 }
 
 model ChatbotCustomization {
-  shopDomain             String   @id @default(uuid())
   selectedColor          String
   botName                String
   greetingMessage        String
@@ -41,6 +40,7 @@ model ChatbotCustomization {
   createdAt              DateTime @default(now()) @map("created_at")
   updatedAt              DateTime @updatedAt @map("updated_at")
   logoFilename           String   @default("default") @map("logo_filename")
+  shopDomain             String   @id @default(uuid())
 }
 
 model FeatureRequest {
@@ -61,11 +61,10 @@ model RegisteredWebhooks {
 }
 
 model KnowledgeBase {
-  shopDomain            String   @id @default(uuid())
-  faqUrl                String?
-  termsAndConditionsUrl String?
-  helpUrl               String?
-  videoLinkUrls         String[]
   documents             Json[]
+  faqUrl                String?
+  helpUrl               String?
+  shopDomain            String   @id @default(uuid())
+  termsAndConditionsUrl String?
+  videoLinkUrls         String[]
 }
-

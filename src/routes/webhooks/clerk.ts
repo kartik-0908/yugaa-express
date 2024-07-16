@@ -38,9 +38,10 @@ router.post('/', async function (req, res) {
         const payloadString = req.body.toString();
         console.log(payloadString)
         const svixHeaders = req.headers;
-        // console.log(process.env.CLERK_WEBHOOK_SECRET_KEY)
+        console.log(process.env.CLERK_WEBHOOK_SECRET_KEY)
         const wh = new Webhook(process.env.CLERK_WEBHOOK_SECRET_KEY || "");
         const evt: Event | null = wh.verify(payloadString, svixHeaders as IncomingHttpHeaders & WebhookRequiredHeaders) as Event;
+        console.log(evt.data)
         const { id } = evt.data;
         const { ...attributes } = evt.data;
         // Handle the webhooks

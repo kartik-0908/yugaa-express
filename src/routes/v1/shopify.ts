@@ -93,5 +93,52 @@ router.post('/getEmail', async (req, res) => {
     return;
 })
 
+router.post('/autoAssignment', async (req, res) => {
+    const { body } = req
+    const { shopDomain } = body
+    try {
+        const resp = await db.shopifyInstalledShop.findUnique({
+            where: {
+                shop: shopDomain,
+            },
+        });
+        res.json({
+            isAutoAssignment: resp?.autoAssignment
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            "message": "Internal server error",
+        })
+    }
+    return;
+})
+
+router.post('/updateAutoAssignment', async (req, res) => {
+    const { body } = req
+    const { shopDomain, autoAssignment } = body
+    console.log(req.body)
+    try {
+        const resp = await db.shopifyInstalledShop.update({
+            where: {
+                shop: shopDomain,
+            },
+            data:{
+                autoAssignment: autoAssignment
+            }
+        });
+        res.json({
+            "message": "ok"
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            "message": "Internal server error",
+        })
+    }
+    return;
+})
+
+
 
 module.exports = router;
