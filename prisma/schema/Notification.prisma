@@ -1,6 +1,5 @@
 model Notification {
   id                   String    @id @default(uuid())
-  userId               String?
   title                String
   role                 String
   content              String
@@ -24,3 +23,5 @@ model Notification {
   @@index([isRead])
   @@index([createdAt])
 }
+
+

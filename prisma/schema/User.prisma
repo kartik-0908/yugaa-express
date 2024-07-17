@@ -11,7 +11,19 @@ model User {
   role                 String?
   emailVerified        DateTime?
   currentActiveTickets Int       @default(0)
-  availableForDist     Boolean   @default(true)
+  availabe             Boolean   @default(true)
+  unavailableTill      DateTime  @default(now())
+ notificationsSent    NotificationSent[]
+
+}
+
+model NotificationSent {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  sentAt    DateTime @default(now())
+
+  @@index([userId])
 }
 
 model InvitedUser {
