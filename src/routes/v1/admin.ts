@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { db } from '../../common/db';
+import { of } from 'svix/dist/openapi/rxjsStub';
 const express = require('express');
 const router = Router();
 const multer = require('multer');
@@ -634,6 +635,8 @@ router.post('/feature-request', async (req, res) => {
 })
 router.post('/getEscwithStatus', async (req, res) => {
     const { shopDomain, offset, count, status } = req.body
+    console.log("inside getting ticket with status")
+    console.log(shopDomain, offset, count, status)
     // console.log(shopDomain)
     try {
         const retcount = await db.aIEscalatedTicket.count({
@@ -646,7 +649,8 @@ router.post('/getEscwithStatus', async (req, res) => {
             skip: offset,
             take: count,
             where: {
-                shopDomain: shopDomain
+                shopDomain: shopDomain,
+                status: status
             },
             orderBy: {
                 createdAt: 'desc',
@@ -659,7 +663,8 @@ router.post('/getEscwithStatus', async (req, res) => {
 
             },
         });
-        // console.log(tickets)
+        console.log(tickets)
+        console.log(retcount)
         res.json({
             retcount, tickets
         })

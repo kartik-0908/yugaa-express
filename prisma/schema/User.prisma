@@ -13,17 +13,8 @@ model User {
   currentActiveTickets Int       @default(0)
   availabe             Boolean   @default(true)
   unavailableTill      DateTime  @default(now())
- notificationsSent    NotificationSent[]
-
-}
-
-model NotificationSent {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  sentAt    DateTime @default(now())
-
-  @@index([userId])
+  lastNotifiedAt       DateTime @default(now())
+   assignedTickets      AIEscalatedTicket[]
 }
 
 model InvitedUser {
